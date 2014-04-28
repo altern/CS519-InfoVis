@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" 
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <link rel="shortcut icon" href="favicon.ico" />
+        <!-- Combo-handled YUI CSS files: -->
+        <link rel="stylesheet" type="text/css"href="js/yui2/build/reset-fonts-grids/reset-fonts-grids.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/assets/skins/sam/resize.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/assets/skins/sam/layout.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/assets/skins/sam/button.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/logger/assets/skins/sam/logger.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/assets/skins/sam/container.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/treeview/assets/skins/sam/treeview.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/autocomplete/assets/skins/sam/autocomplete.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/datatable/assets/skins/sam/datatable.css">
+        <link rel="stylesheet" type="text/css" href="js/yui2/build/tabview/assets/skins/sam/tabview.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/cs519/style.css">
+        <!-- Combo-handled YUI JS files: -->
+        <script type="text/javascript" src="js/yui2/build/yahoo/yahoo-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+        <script type="text/javascript" src="js/yui2/build/cookie/cookie-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/selector/selector-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/event/event-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/dom/dom-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/element/element-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/dragdrop/dragdrop-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/resize/resize-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/animation/animation-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/layout/layout-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/button/button-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/treeview/treeview.js"></script>
+        <script type="text/javascript" src="js/yui2/build/container/container-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/connection/connection_core-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/connection/connection.js"></script>
+        <script type="text/javascript" src="js/yui2/build/json/json-min.js"></script>
+        <script type="text/javascript" src="js/yui2/build/tabview/tabview-min.js"></script>
+        <!-- D3 JS files: -->
+        <script type="text/javascript" src="js/d3/d3.min.js"></script>
+        <script type="text/javascript" src="js/cs519/barChart.js"></script>
+        <script type="text/javascript" src="js/cs519/multiSeriesLineChart.js"></script>
+        <script type="text/javascript" src="js/cs519/stackedAreaChart.js"></script>
+        <script type="text/javascript" src="js/cs519/forcedDirectedGraph.js"></script>
+        <!-- SCMFVIZ JS files: -->
+        <script type="text/javascript" src="js/scmfviz/alert.js"></script>
+        <script type="text/javascript" src="js/scmfviz/layout.js"></script>
+        <script type="text/javascript" src="js/scmfviz/loading.js"></script>
+        <script type="text/javascript" src="js/scmfviz/scmtree.js"></script>
+        <script type="text/javascript" src="js/scmfviz/svntree.js"></script>
+        <script type="text/javascript" src="js/scmfviz/util.js"></script>
+        
+        <script type="text/javascript"> 
+            (function() {
+                YAHOO.util.Event.onDOMReady(function() { 
+                    YAHOO.scmfviz.loading.init();
+                    var tabView = new YAHOO.widget.TabView('center');
+                    barChart();
+                } );
+            })();
+        </script>
+    </head>
+    <body class="yui-skin-sam">
+        <div id="description" style="padding: 5px">
+            Implementation of Assignment #3 for CS519 Information Visualization class : multi-series line chart, stacked area chart, forced directed graph
+        </div>
+        <div id="bottom">
+            <div id="logos">
+                <a href="http://developer.yahoo.com/yui/2/"><img src="img/yui-logo.gif" style="top: -10px;"/></a>
+                <!--<a href="http://framework.zend.com/"><img src="img/zf-logo.png" style="position:relative; top: 1px; "/></a>-->
+                <a href="http://d3js.org"><img src="img/d3-logo.png" style="position:relative; top: -8px; "/></a>
+                <a href="http://www.w3.org/Style/CSS/"><img src="img/w3c_css.png" style="position:relative; top: -8px;"/></a>
+                <a href="http://www.w3.org/TR/xhtml1/"><img src="img/w3c_xhtml.png" style="position:relative; top: -8px; "/></a>
+                <!--<a href="http://php.net"><img src="img/php5.png" style="position:relative; top: -8px; "/></a>-->
+                <!--<a href="http://pear.php.net/"><img src="img/pear-logo.png" style="position:relative; top: -8px; "/></a>-->
+            </div>
+            <div id="author">Concept and implementation: <a href="http://people.oregonstate.edu/~shmarkas" target="_new">Sergii Shmarkatiuk</a></div>
+        </div>
+        
+        <div id="left">
+            <div id="scmtree"></div>
+        </div>
+        <div id="right">
+            <div id="svntree"></div>
+        </div>
+        <div id="rightFooter"></div>
+        <div id="center" class="yui-navset">
+            <ul class="yui-nav">
+<!--                <li><a href="#projects"><em>Projects</em></a></li>-->
+                <li class="selected"><a href="#visualization"><em>Visualization</em></a></li>
+                <li><a href="#actions"><em>Actions</em></a></li>
+                <li><a href="#deployments"><em>Deployment rules</em></a></li>
+                <li><a href="#platforms"><em>Platforms</em></a></li>
+            </ul>            
+            <div class="yui-content">
+<!--                <div id="projects">
+                    <p>Projects</p>
+                </div>-->
+                <div id="visualization">
+<!--                    <p>Actions</p>-->
+                </div>
+                <div id="actions">
+<!--                    <p>Actions</p>-->
+                </div>
+                <div id="deployments">
+<!--                    <p>Deployments</p>-->
+                </div>
+                <div id="platforms">
+<!--                    <p>Platforms</p>-->
+                </div>
+            </div>
+        </div>
+        <div id="loading"></div>
+    </body>
+</html>

@@ -1,0 +1,14 @@
+  #barChart .chart {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+  }
+
+  #barChart .axis path, #barChart .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  #barChart .bar {
+    fill: steelblue;
+  }
