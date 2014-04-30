@@ -1,4 +1,25 @@
-  #barChart .chart {
+#controls {
+    padding: 5px;
+    border: 1px solid grey;
+    float: left;
+    height: 660px;
+    width: 200px;
+    margin-right: 10px;
+    font: 14px sans-serif; 
+}
+
+#visualization {
+    padding: 5px;
+    border: 1px solid grey;
+    float: left;
+    height: 660px;
+}
+
+.controlLabel {
+    font-weight: bold;
+}
+
+#barChart .chart {
     font-family: Arial, sans-serif;
     font-size: 10px;
   }
