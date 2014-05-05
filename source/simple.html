@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>D3 testing</title>
+        <title>CS 519 - Assignment #3</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="css/cs519/style.css">
@@ -11,232 +11,52 @@
         <script type="text/javascript" src="js/cs519/multiSeriesLineChart.js"></script>
         <script type="text/javascript" src="js/cs519/stackedAreaChart.js"></script>
         <script type="text/javascript" src="js/cs519/forcedDirectedGraph.js"></script>
-        <script type="text/javascript">
-            
-            var datasetPath = 'data/';
-            
-            var getValues = function() {
-                return {
-                    'chartType': $('input[name=chartType]:checked').val(),
-                    'xColumnName': $('input[name=xColumnName]').val(),
-                    'dataset': datasetPath + $('select[name=dataset]>option:selected').val(),
-                    'width': parseInt($('input[name=width]').val()),
-                    'height': parseInt($('input[name=height]').val()),
-                    'xParseFormat': getParseFormat($('input[name=xParseFormat]').val()),
-                    'xFormat': getDataFormat($('select[name=xFormat]>option:selected').val()),
-                    'yFormat': getDataFormat($('select[name=yFormat]>option:selected').val()),
-                    'xScale': getScale($('select[name=xFormat]>option:selected').val()),
-                    'yScale': getScale($('select[name=yFormat]>option:selected').val()),
-                    'xLabel': $('input[name=xLabel]').val(),
-                    'yLabel': $('input[name=yLabel]').val(),
-                }
-            }
-            
-            var drawChart = function(valueObj) {
-                var chart = window[valueObj.chartType].call();
-                chart.xColumnName(valueObj.xColumnName)
-                chart.width(valueObj.width)
-                chart.height(valueObj.height)
-                chart.csvFile(valueObj.dataset)
-                chart.xParseFormat(valueObj.xParseFormat)
-                chart.xFormat(valueObj.xFormat)
-                chart.yFormat(valueObj.yFormat)
-                chart.xScale(valueObj.xScale)
-                chart.yScale(valueObj.yScale)
-                chart.xLabel(valueObj.xLabel)
-                chart.yLabel(valueObj.yLabel)
-                chart()
-            }
-            
-            var selectChartType = function() {
-                var valueObj = getValues()
-                if(this.value) {
-                    valueObj.chartType = this.value;
-                }
-                drawChart(valueObj)
-            }
-            
-            var selectDataset = function() {
-                switch(this.value) {
-                    case 'browsers.csv':
-                        $('input[name=xParseFormat]').val('%y-%b-%d'); break;
-                    case 'temperatures.csv':
-                        $('input[name=xParseFormat]').val('%Y%m%d'); break;
-                    default:
-                        break;
-                }
-                var valueObj = getValues()
-                if(this.value) {
-                    valueObj.dataset = datasetPath + this.value;
-                }
-                drawChart(valueObj)
-            }
-            
-            var getParseFormat = function(format) {
-                if(format) {
-                    return d3.time.format(format.trim())
-                } else {
-                    return d3.format()
-                }
-            }
-            var getDataFormat = function(format) {
-                switch(format) {
-                    case 'date (%y-%b-%d)': 
-                        d3Format = d3.time.format("%y-%b-%d")
-                        break;
-                    case 'date (%Y%m%d)': 
-                        d3Format = d3.time.format("%Y%m%d")
-                        break;
-                    case 'month': 
-                        d3Format = d3.time.format('%B')
-                        break;
-                    case 'percents': 
-                        d3Format = d3.format(".0%")
-                        break;
-                    case 'number': 
-                    default:
-                        d3Format = d3.format()
-                        break;
-                }
-                return d3Format;
-            }
-            var getScale = function(format) {
-                switch(format) {
-                    case 'month': 
-                    case 'date (%y-%b-%d)': 
-                    case 'date (%Y%m%d)': 
-                        d3Scale = d3.time.scale()
-                        break;
-                    case 'percents': 
-                    case 'number': 
-                    default:
-                        d3Scale = d3.scale.linear()
-                        break;
-                }
-                return d3Scale;
-            }
-            var selectXFormat = function() {
-                var valueObj = getValues()
-                if(this.value) {
-                    valueObj.xFormat = getDataFormat(this.value);
-                    valueObj.xScale = getScale(this.value);
-                }
-                drawChart(valueObj)
-            }
-            
-            var selectYFormat = function() {
-                var valueObj = getValues()
-                if(this.value) {
-                    valueObj.yFormat = getDataFormat(this.value);
-                    valueObj.yScale = getScale(this.value);
-                }
-                drawChart(valueObj)
-            }
-            
-            var updateGraph = function() {
-                var valueObj = getValues()
-                drawChart(valueObj)
-            }
-            
-            $(document).ready( function() {
-                $('input[name=chartType]').each(function(i, elem) {
-                    $(elem).on('click', selectChartType)
-                })
-                $('select[name=dataset]').on('change', selectDataset)
-                $('input[name=xColumnName]').on('change', updateGraph)
-                $('input[name=width]').on('change', updateGraph)
-                $('input[name=height]').on('change', updateGraph)
-                $('input[name=xLabel]').on('change', updateGraph)
-                $('input[name=yLabel]').on('change', updateGraph)
-                $('input[name=xParseFormat]').on('change', updateGraph)
-                $('select[name=xFormat]').on('change', selectXFormat)
-                $('select[name=yFormat]').on('change', selectYFormat)
-                
-                selectChartType();
-            });
-        </script>
+        <script type="text/javascript" src="js/cs519/chartCustomizationForm.js"></script>
     </head>
     <body>
-        <div id="controls">
-            <span class="controlLabel">Chart type:</span><br />
-            <input type="radio" name="chartType" value="stackedAreaChart" />Stacked area chart<br />
-            <input type="radio" name="chartType" value="multiSeriesLineChart" checked="checked"/>Multi-series line chart<br />
-            <input type="radio" name="chartType" value="forcedDirectedGraph" />Forced directed graph<br />
-            <br />
-            <span class="controlLabel">Dataset:</span><br />
-            <select name="dataset">
-                <option name="dataset" value="browsers.csv" >browsers.csv</option>
-                <option name="dataset" value="temperatures.csv" selected="selected">temperatures.csv</option>
-            </select><br /><br />
-            <span class="controlLabel">Name of data column for x-axis:</span><br />
-            <input type="text" size="20" name="xColumnName" value="date"/><br /><br />
-            <span class="controlLabel">Parsing format for x-axis data:</span><br />
-            <input type="text" size="20" name="xParseFormat" value="%Y%m%d"/><br /><br />
-            <span class="controlLabel">Format for x-axis:</span><br />
-            <select name="xFormat">
-                <option name="xFormat" value="number" >number</option>
-                <option name="yFormat" value="month" selected="selected">month</option>
-                <option name="xFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                <option name="xFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                <option name="yFormat" value="percents">percents</option>
-            </select><br /><br />
-            <span class="controlLabel">Format for y-axis:</span><br />
-            <select name="yFormat">
-                <option name="yFormat" value="number" selected="selected">number</option>
-                <option name="yFormat" value="month">month</option>
-                <option name="yFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                <option name="yFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                <option name="yFormat" value="percents">percents</option>
-            </select><br /><br />
-            <span class="controlLabel">Label for x-axis:</span><br />
-            <input type="text" size="20" name="xLabel" value="Month"/><br /><br />
-            <span class="controlLabel">Label for y-axis</span><br />
-            <input type="text" size="20" name="yLabel" value="Temperature (ºF)"/><br /><br />
-            <span class="controlLabel">Width:</span><br />
-            <input type="text" size="5" name="width" value="1000"/><br /><br />
-            <span class="controlLabel">Height:</span><br />
-            <input type="text" size="5" name="height" value="600"/><br /><br />
-            
-
-<!--            <span class="controlLabel">Chart type:</span><br />
-            <input type="radio" name="chartType" value="stackedAreaChart" checked="checked"/>Stacked area chart<br />
-            <input type="radio" name="chartType" value="multiSeriesLineChart" />Multi-series line chart<br />
-            <input type="radio" name="chartType" value="forcedDirectedGraph" />Forced directed graph<br />
-            <br />
-            <span class="controlLabel">Dataset:</span><br />
-            <select name="dataset">
-                <option name="dataset" value="browsers.csv" selected="selected">browsers.csv</option>
-                <option name="dataset" value="temperatures.csv" >temperatures.csv</option>
-            </select><br /><br />
-            <span class="controlLabel">Name of data column for x-axis:</span><br />
-            <input type="text" size="20" name="xColumnName" value="IE"/><br /><br />
-            <span class="controlLabel">Parsing format for x-axis data:</span><br />
-            <input type="text" size="20" name="xParseFormat" value=""/><br /><br />
-            <span class="controlLabel">Format for x-axis:</span><br />
-            <select name="xFormat">
-                <option name="xFormat" value="number" selected="selected">number</option>
-                <option name="yFormat" value="month" >month</option>
-                <option name="xFormat" value="date (%y-%b-%d)" >date (%y-%b-%d)</option>
-                <option name="xFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                <option name="yFormat" value="percents">percents</option>
-            </select><br /><br />
-            <span class="controlLabel">Format for y-axis:</span><br />
-            <select name="yFormat">
-                <option name="yFormat" value="number" selected="selected">number</option>
-                <option name="yFormat" value="month">month</option>
-                <option name="yFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                <option name="yFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                <option name="yFormat" value="percents">percents</option>
-            </select><br /><br />
-            <span class="controlLabel">Label for x-axis:</span><br />
-            <input type="text" size="20" name="xLabel" value=""/><br /><br />
-            <span class="controlLabel">Label for y-axis</span><br />
-            <input type="text" size="20" name="yLabel" value="Usage"/><br /><br />
-            <span class="controlLabel">Width:</span><br />
-            <input type="text" size="5" name="width" value="1000"/><br /><br />
-            <span class="controlLabel">Height:</span><br />
-            <input type="text" size="5" name="height" value="600"/><br /><br />-->
+        <div id="charts">
+            <div id="controls">
+                <span class="controlLabel">Chart type:</span><br />
+                <input type="radio" name="chartType" value="stackedAreaChart" />Stacked area chart<br />
+                <input type="radio" name="chartType" value="multiSeriesLineChart" />Multi-series line chart<br />
+                <input type="radio" name="chartType" value="forcedDirectedGraph" checked="checked"/>Forced directed graph<br />
+                <br />
+                <span class="controlLabel">Dataset:</span><br />
+                <select name="dataset">
+                    <option name="dataset" value="browsers.csv" >browsers.csv</option>
+                    <option name="dataset" value="temperatures.csv" >temperatures.csv</option>
+                    <option name="dataset" value="interests.json" selected="selected">interests.json</option>
+                </select><br /><br />
+                <span class="controlLabel">Name of data column for x-axis:</span><br />
+                <input type="text" size="20" name="xColumnName" value="date"/><br /><br />
+                <span class="controlLabel">Parsing format for x-axis data:</span><br />
+                <input type="text" size="20" name="xParseFormat" value="%Y%m%d"/><br /><br />
+                <span class="controlLabel">Format for x-axis:</span><br />
+                <select name="xFormat">
+                    <option name="xFormat" value="number" >number</option>
+                    <option name="yFormat" value="month" selected="selected">month</option>
+                    <option name="xFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
+                    <option name="xFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
+                    <option name="yFormat" value="percents">percents</option>
+                </select><br /><br />
+                <span class="controlLabel">Format for y-axis:</span><br />
+                <select name="yFormat">
+                    <option name="yFormat" value="number" selected="selected">number</option>
+                    <option name="yFormat" value="month">month</option>
+                    <option name="yFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
+                    <option name="yFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
+                    <option name="yFormat" value="percents">percents</option>
+                </select><br /><br />
+                <span class="controlLabel">Label for x-axis:</span><br />
+                <input type="text" size="20" name="xLabel" value=""/><br /><br />
+                <span class="controlLabel">Label for y-axis</span><br />
+                <input type="text" size="20" name="yLabel" value=""/><br /><br />
+                <span class="controlLabel">Width:</span><br />
+                <input type="text" size="5" name="width" value="1000"/><br /><br />
+                <span class="controlLabel">Height:</span><br />
+                <input type="text" size="5" name="height" value="600"/><br /><br />
+            </div>
+            <div id="visualization"></div>
         </div>
-        <div id="visualization"></div>
     </body>
 </html>

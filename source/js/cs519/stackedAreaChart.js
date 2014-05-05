@@ -9,124 +9,126 @@ function stackedAreaChart() {
         xFormat = d3.format(),
         yFormat = d3.format(),
         xColumnName = 'date',
-        yColumnName = 'date',
+        yColumnName = '',
         xParseFormat = d3.time.format('%y-%b-%d'),
         xColumnOrdering = 'ascending',
-        csvFile = "data/browsers.csv",
-        chartId = '#visualization';
+        dataFile = "data/browsers.csv",
+        chartId = 'visualization',
+        parentDOMElement = 'body';
 
-    var chart = function() {
-        
-        d3.csv(csvFile, function(error, csv) {
+    var dataProcessing = function(error, data) {
+        if(xParseFormat.parse) {
+            data.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xParseFormat.parse(a[xColumnName]), xParseFormat.parse(b[xColumnName]));})
+        } else {
+            data.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xFormat(a[xColumnName]), xFormat(b[xColumnName]));})
+        }
+        var color = d3.scale.category20();
+
+        var stack = d3.layout.stack()
+            .values(function(d) { return d.values; });
+
+        d3.select('#' + chartId).remove()
+
+        var svg = d3.select(parentDOMElement).append('div').attr('id', chartId)
+            .append('div').attr('id', 'stackedAreaChart')
+            .append('svg') 
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .data(data)
+
+        var x = xScale
+            .range([0, width - margin.left - margin.right])
+
+        var y = yScale
+            .range([height - margin.top - margin.bottom, 0])
+
+        color.domain(d3.keys(data[0]).filter(function(key) { 
+            return key !== xColumnName; 
+        }));
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            .tickFormat(xFormat);
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .tickFormat(yFormat);
+
+        var area = d3.svg.area()
+            .x(function(d) { return x(d.x); })
+            .y0(function(d) { return y(d.y0); })
+            .y1(function(d) { return y(d.y0 + d.y); });
+
+        data.forEach(function(d) {
             if(xParseFormat.parse) {
-                csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xParseFormat.parse(a[xColumnName]), xParseFormat.parse(b[xColumnName]));})
+                d[xColumnName] = xParseFormat.parse(d[xColumnName]);
             } else {
-                csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xFormat(a[xColumnName]), xFormat(b[xColumnName]));})
+                d[xColumnName] = xFormat(d[xColumnName]);
             }
-            var color = d3.scale.category20();
+        });
 
-            var stack = d3.layout.stack()
-                .values(function(d) { return d.values; });
+        var areaData = stack(color.domain().map(function(name) {
+            return {
+                name: name,
+                values: data.map(function(d) {
+                    return {x: d[xColumnName], y: parseFloat(d[name])};
+                })
+            };
+        }));
 
-            d3.select(chartId).remove()
+        x.domain(d3.extent(data, function(d) { return d[xColumnName]; }));
+        y.domain([0, d3.max(data.map(function(elem, i) {
+            return d3.sum(color.domain().map(function(name) { return data[i][name] }))
+        }))])
 
-            var svg = d3.select('body').append('div').attr('id', 'visualization')
-                .append('div').attr('id', 'stackedAreaChart')
-                .append('svg') 
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                .data(csv)
+        var singleArea = svg.selectAll(".singleArea")
+            .data(areaData)
+            .enter().append("g")
+            .attr("class", "singleArea");
 
-            var x = xScale
-                .range([0, width - margin.left - margin.right])
+        singleArea.append("path")
+            .attr("class", "area")
+            .attr("d", function(d) { return area(d.values); })
+            .style("fill", function(d) { return color(d.name); });
 
-            var y = yScale
-                .range([height - margin.top - margin.bottom, 0])
+        singleArea.append("text")
+            .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+            .attr("transform", function(d) { return "translate(" + x(d.value.x) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+            .attr("x", -6)
+            .attr("dy", ".35em")
+            .text(function(d) { return d.name; });
 
-    //        selection.each(function(data) {
-            color.domain(d3.keys(csv[0]).filter(function(key) { 
-                return key !== xColumnName; 
-            }));
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + (height - margin.top - margin.bottom) + ")")
+            .call(xAxis)
+            .append("text")
+            .attr("x", width)
+            .attr("dy", ".71em")
+            .attr("font-size", "24")
+            .style("text-anchor", "end")
+            .text(xLabel);
 
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom")
-                .tickFormat(xFormat);
-
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left")
-                .tickFormat(yFormat);
-
-            var area = d3.svg.area()
-                .x(function(d) { return x(d.x); })
-                .y0(function(d) { return y(d.y0); })
-                .y1(function(d) { return y(d.y0 + d.y); });
-            
-            csv.forEach(function(d) {
-                if(xParseFormat.parse) {
-                    d[xColumnName] = xParseFormat.parse(d[xColumnName]);
-                } else {
-                    d[xColumnName] = xFormat(d[xColumnName]);
-                }
-            });
-
-            var areaData = stack(color.domain().map(function(name) {
-                return {
-                    name: name,
-                    values: csv.map(function(d) {
-                        return {x: d[xColumnName], y: parseFloat(d[name])};
-                    })
-                };
-            }));
-
-            x.domain(d3.extent(csv, function(d) { return d[xColumnName]; }));
-            y.domain([0, d3.max(csv.map(function(elem, i) {
-                return d3.sum(color.domain().map(function(name) { return csv[i][name] }))
-            }))])
-
-            var singleArea = svg.selectAll(".singleArea")
-                .data(areaData)
-                .enter().append("g")
-                .attr("class", "singleArea");
-
-            singleArea.append("path")
-                .attr("class", "area")
-                .attr("d", function(d) { return area(d.values); })
-                .style("fill", function(d) { return color(d.name); });
-
-            singleArea.append("text")
-                .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-                .attr("transform", function(d) { return "translate(" + x(d.value.x) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
-                .attr("x", -6)
-                .attr("dy", ".35em")
-                .text(function(d) { return d.name; });
-
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + (height - margin.top - margin.bottom) + ")")
-                .call(xAxis)
-                .append("text")
-                .attr("x", width)
-                .attr("dy", ".71em")
-                .attr("font-size", "24")
-                .style("text-anchor", "end")
-                .text(xLabel);
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", "1em")
-                .style("text-anchor", "end")
-                .attr("font-size", "24")
-                .text(yLabel);
-            }
-        );
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "1em")
+            .style("text-anchor", "end")
+            .attr("font-size", "24")
+            .text(yLabel);
+        }
+        
+    var chart = function() {
+        var dataFileArr = dataFile.split('.')
+        var extension = dataFileArr[1];
+        d3[extension].call(d3, dataFile, dataProcessing);
     }
     
     function X(d) {
@@ -229,11 +231,11 @@ function stackedAreaChart() {
         return chart;
     };
     
-    chart.csvFile  = function(_) {
+    chart.dataFile  = function(_) {
         if (!arguments.length)
-            return csvFile;
-        csvFile = _;
-        return csvFile;
+            return dataFile;
+        dataFile = _;
+        return dataFile;
     };
     
     chart.chartId  = function(_) {
@@ -241,6 +243,13 @@ function stackedAreaChart() {
             return chartId;
         chartId = _;
         return chartId;
+    };
+    
+    chart.parentDOMElement  = function(_) {
+        if (!arguments.length)
+            return parentDOMElement;
+        parentDOMElement = _;
+        return parentDOMElement;
     };
 
     return chart;

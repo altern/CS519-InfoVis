@@ -7,13 +7,14 @@
     margin-right: 10px;
     font: 14px sans-serif; 
 }
-
 #visualization {
     padding: 5px;
     border: 1px solid grey;
     float: left;
-    height: 660px;
+    width: 1000px;
+    height: 520px;
 }
+
 
 .controlLabel {
     font-weight: bold;
@@ -68,3 +69,15 @@
   #stackedAreaChart .browser text {
     text-anchor: end;
   }
+#forcedDirectedGraph {
+  font: 10px sans-serif;
+}
+#forcedDirectedGraph .node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+#forcedDirectedGraph .link {
+  stroke: #999;
+  stroke-opacity: .6;
+}

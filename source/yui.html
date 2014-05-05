@@ -35,7 +35,12 @@
         <script type="text/javascript" src="js/yui2/build/connection/connection.js"></script>
         <script type="text/javascript" src="js/yui2/build/json/json-min.js"></script>
         <script type="text/javascript" src="js/yui2/build/tabview/tabview-min.js"></script>
-        
+        <!-- D3 JS files: -->
+        <script type="text/javascript" src="js/d3/d3.min.js"></script>
+        <script type="text/javascript" src="js/cs519/barChart.js"></script>
+        <script type="text/javascript" src="js/cs519/multiSeriesLineChart.js"></script>
+        <script type="text/javascript" src="js/cs519/stackedAreaChart.js"></script>
+        <script type="text/javascript" src="js/cs519/forcedDirectedGraph.js"></script>
         <!-- SCMFVIZ JS files: -->
         <script type="text/javascript" src="js/scmfviz/alert.js"></script>
         <script type="text/javascript" src="js/scmfviz/layout.js"></script>
@@ -43,15 +48,6 @@
         <script type="text/javascript" src="js/scmfviz/scmtree.js"></script>
         <script type="text/javascript" src="js/scmfviz/svntree.js"></script>
         <script type="text/javascript" src="js/scmfviz/util.js"></script>
-        
-        <!-- D3 JS files: -->
-        <script type="text/javascript" src="js/d3/d3.js"></script>
-        <script type="text/javascript" src="js/jquery/jquery.js"></script>
-        <!--<script type="text/javascript" src="js/cs519/barChart.js"></script>-->
-        <script type="text/javascript" src="js/cs519/multiSeriesLineChart.js"></script>
-        <script type="text/javascript" src="js/cs519/stackedAreaChart.js"></script>
-        <script type="text/javascript" src="js/cs519/forcedDirectedGraph.js"></script>
-        <script type="text/javascript" src="js/cs519/chartCustomizationForm.js"></script>
         
         <script type="text/javascript"> 
             (function() {
@@ -90,62 +86,18 @@
         <div id="center" class="yui-navset">
             <ul class="yui-nav">
 <!--                <li><a href="#projects"><em>Projects</em></a></li>-->
-                <li class="selected"><a href="#charts"><em>Visualization</em></a></li>
-                <!--<li><a href="#actions"><em>Actions</em></a></li>-->
-                <!--<li><a href="#deployments"><em>Deployment rules</em></a></li>-->
-                <!--<li><a href="#platforms"><em>Platforms</em></a></li>-->
+                <li class="selected"><a href="#visualization"><em>Visualization</em></a></li>
+                <li><a href="#actions"><em>Actions</em></a></li>
+                <li><a href="#deployments"><em>Deployment rules</em></a></li>
+                <li><a href="#platforms"><em>Platforms</em></a></li>
             </ul>            
             <div class="yui-content">
 <!--                <div id="projects">
                     <p>Projects</p>
                 </div>-->
-                <div id="charts">
-                    <div id="controls" style="height:520px">
-                        <span class="controlLabel">Chart type:</span><br />
-                        <input type="radio" name="chartType" value="stackedAreaChart" />Stacked area chart<br />
-                        <input type="radio" name="chartType" value="multiSeriesLineChart" />Multi-series line chart<br />
-                        <input type="radio" name="chartType" value="forcedDirectedGraph" checked="checked"/>Forced directed graph<br />
-                        <br />
-                        <span class="controlLabel">Dataset:</span><br />
-                        <select name="dataset">
-                            <option name="dataset" value="browsers.csv" >browsers.csv</option>
-                            <option name="dataset" value="temperatures.csv" >temperatures.csv</option>
-                            <option name="dataset" value="interests.json" selected="selected">interests.json</option>
-                        </select><br /><br />
-                        <span class="controlLabel">Name of data column for x-axis:</span><br />
-                        <input type="text" size="20" name="xColumnName" value="date"/><br /><br />
-                        <span class="controlLabel">Parsing format for x-axis data:</span><br />
-                        <input type="text" size="20" name="xParseFormat" value="%Y%m%d"/><br /><br />
-                        <span class="controlLabel">Format for x-axis:</span><br />
-                        <select name="xFormat">
-                            <option name="xFormat" value="number" >number</option>
-                            <option name="yFormat" value="month" selected="selected">month</option>
-                            <option name="xFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                            <option name="xFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                            <option name="yFormat" value="percents">percents</option>
-                        </select><br /><br />
-                        <span class="controlLabel">Format for y-axis:</span><br />
-                        <select name="yFormat">
-                            <option name="yFormat" value="number" selected="selected">number</option>
-                            <option name="yFormat" value="month">month</option>
-                            <option name="yFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                            <option name="yFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                            <option name="yFormat" value="percents">percents</option>
-                        </select><br /><br />
-                        <span class="controlLabel">Label for x-axis:</span><br />
-                        <input type="text" size="20" name="xLabel" value=""/><br /><br />
-                        <span class="controlLabel">Label for y-axis</span><br />
-                        <input type="text" size="20" name="yLabel" value=""/><br /><br />
-                        <div style="float:left">
-                            <span class="controlLabel">Width:</span><br />
-                            <input type="text" size="5" name="width" value="900"/>
-                        </div>
-                        <div style="float:left;margin-left: 10px">
-                            <span class="controlLabel">Height:</span><br />
-                            <input type="text" size="5" name="height" value="450"/><br /><br />
-                        </div>
-                    </div>
-                    <div id="visualization"></div>
+                <div id="visualization">
+<!--                    <p>Actions</p>-->
+                </div>
                 <div id="actions">
 <!--                    <p>Actions</p>-->
                 </div>

@@ -13,11 +13,11 @@ function multiSeriesLineChart() {
         yColumnName = 'temperature',
         xParseFormat = d3.time.format("%Y%m%d"),
         xColumnOrdering = 'ascending',
-        csvFile = "data/temperatures.csv",
-        chartId = '#visualization';
-
-    var chart = function() {
-
+        dataFile = "data/temperatures.csv",
+        chartId = 'visualization',
+        parentDOMElement = 'body';
+        
+    var dataProcessing = function(error, csv) {
         var x = xScale
             .range([0, width - margin.left - margin.right]);
 
@@ -41,88 +41,93 @@ function multiSeriesLineChart() {
             .x(function(d) { return x(d[xColumnName]); })
             .y(function(d) { return y(d[yColumnName]); });
 
-        d3.select(chartId).remove()
+        d3.select('#' + chartId).remove()
 
-        var svg = d3.select('body').append('div').attr('id', 'visualization')
+        var svg = d3.select(parentDOMElement).append('div').attr('id', chartId)
             .append('div').attr('id', 'multiSeriesLineChart')
             .append('svg')
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+        if(xParseFormat.parse) {
+            csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xParseFormat.parse(a[xColumnName]), xParseFormat.parse(b[xColumnName]));})
+        } else {
+            csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xFormat(a[xColumnName]), xFormat(b[xColumnName]));})
+        }
 
-        d3.csv(csvFile, function(error, csv) {
+        color.domain(d3.keys(csv[0]).filter(function(key) { return key !== xColumnName; }));
+
+        csv.forEach(function(d) {
             if(xParseFormat.parse) {
-                csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xParseFormat.parse(a[xColumnName]), xParseFormat.parse(b[xColumnName]));})
+                d[xColumnName] = xParseFormat.parse(d[xColumnName]);
             } else {
-                csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xFormat(a[xColumnName]), xFormat(b[xColumnName]));})
+                d[xColumnName] = xFormat(d[xColumnName]);
             }
-
-            color.domain(d3.keys(csv[0]).filter(function(key) { return key !== xColumnName; }));
-
-            csv.forEach(function(d) {
-                if(xParseFormat.parse) {
-                    d[xColumnName] = xParseFormat.parse(d[xColumnName]);
-                } else {
-                    d[xColumnName] = xFormat(d[xColumnName]);
-                }
-            });
-
-            var colors = color.domain().map(function(name) {
-              return {
-                name: name,
-                values: csv.map(function(d) {
-                  return {date: d[xColumnName], temperature: +d[name]};
-                })
-              };
-            });
-
-            x.domain(d3.extent(csv, function(d) { return d[xColumnName]; }));
-
-            y.domain([
-              d3.min(colors, function(c) { return d3.min(c.values, function(v) { return v[yColumnName]; }); }),
-              d3.max(colors, function(c) { return d3.max(c.values, function(v) { return v[yColumnName]; }); })
-            ]);
-
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis)
-                .append("text")
-                .attr("x", width)
-                .attr("dy", ".71em")
-                .attr("font-size", "24")
-                .style("text-anchor", "end")
-                .text(xLabel);
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", "1em")
-                .style("text-anchor", "end")
-                .attr("font-size", "24")
-                .text(yLabel);
-
-            var col = svg.selectAll(".col")
-                .data(colors)
-                .enter().append("g")
-                .attr("class", "col");
-
-            col.append("path")
-                .attr("class", "line")
-                .attr("d", function(d) { return line(d.values); })
-                .style("stroke", function(d) { return color(d.name); });
-
-            col.append("text")
-                .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-                .attr("transform", function(d) { return "translate(" + x(d.value[xColumnName]) + "," + y(d.value[yColumnName]) + ")"; })
-                .attr("x", 3)
-                .attr("dy", ".35em")
-                .text(function(d) { return d.name; });
         });
+
+        var colors = color.domain().map(function(name) {
+          return {
+            name: name,
+            values: csv.map(function(d) {
+              return {date: d[xColumnName], temperature: +d[name]};
+            })
+          };
+        });
+
+        x.domain(d3.extent(csv, function(d) { return d[xColumnName]; }));
+
+        y.domain([
+          d3.min(colors, function(c) { return d3.min(c.values, function(v) { return v[yColumnName]; }); }),
+          d3.max(colors, function(c) { return d3.max(c.values, function(v) { return v[yColumnName]; }); })
+        ]);
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+            .attr("x", width)
+            .attr("dy", ".71em")
+            .attr("font-size", "24")
+            .style("text-anchor", "end")
+            .text(xLabel);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "1em")
+            .style("text-anchor", "end")
+            .attr("font-size", "24")
+            .text(yLabel);
+
+        var col = svg.selectAll(".col")
+            .data(colors)
+            .enter().append("g")
+            .attr("class", "col");
+
+        col.append("path")
+            .attr("class", "line")
+            .attr("d", function(d) { return line(d.values); })
+            .style("stroke", function(d) { return color(d.name); });
+
+        col.append("text")
+            .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+            .attr("transform", function(d) { return "translate(" + x(d.value[xColumnName]) + "," + y(d.value[yColumnName]) + ")"; })
+            .attr("x", 3)
+            .attr("dy", ".35em")
+            .text(function(d) { return d.name; });
+    }
+    
+    var chart = function() {
+        var dataFileArr = dataFile.split('.')
+        var extension = dataFileArr[1];
+        
+        d3[extension].call(d3, dataFile, dataProcessing);
     }
     function X(d) {
         return xScale(d[0]);
@@ -217,11 +222,11 @@ function multiSeriesLineChart() {
         return chart;
     };
     
-    chart.csvFile  = function(_) {
+    chart.dataFile  = function(_) {
         if (!arguments.length)
-            return csvFile;
-        csvFile = _;
-        return csvFile;
+            return dataFile;
+        dataFile = _;
+        return dataFile;
     };
     
     chart.chartId  = function(_) {
@@ -229,6 +234,13 @@ function multiSeriesLineChart() {
             return chartId;
         chartId = _;
         return chartId;
+    };
+    
+    chart.parentDOMElement  = function(_) {
+        if (!arguments.length)
+            return parentDOMElement;
+        parentDOMElement = _;
+        return parentDOMElement;
     };
 
     return chart;
