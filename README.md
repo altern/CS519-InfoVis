@@ -1,6 +1,6 @@
 # Installation
 
-1. Run start.sh (or start.bat if you are on windows)
+1. Run `start.sh` (or `start.bat` if you are on windows)
 1. Open URL [http://localhost:8080](http://localhost:8080)
 
 # Implementation of reusable charts
