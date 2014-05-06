@@ -6,16 +6,6 @@ function forcedDirectedGraph() {
         charge = -800,
         linkDistance = 150,
         circleRadius = 20,
-        xLabel = '',
-        yLabel = "",
-        xScale = d3.scale.linear(),
-        yScale = d3.scale.linear(),
-        xFormat = d3.format(),
-        yFormat = d3.format(),
-        xColumnName = 'date',
-        yColumnName = 'date',
-        xParseFormat = d3.time.format('%y-%b-%d'),
-        xColumnOrdering = 'ascending',
         dataFile = "data/miserables.json",
         chartId = 'visualization',
         parentDOMElement = 'body';
@@ -105,76 +95,6 @@ function forcedDirectedGraph() {
         if (!arguments.length)
             return height;
         height = _;
-        return chart;
-    };
-    
-    chart.xFormat  = function(_) {
-        if (!arguments.length)
-            return xFormat;
-        xFormat = _;
-        return chart;
-    };
-    
-    chart.xParseFormat  = function(_) {
-        if (!arguments.length)
-            return xParseFormat;
-        xParseFormat = _;
-        return chart;
-    };
-    
-    chart.yFormat  = function(_) {
-        if (!arguments.length)
-            return yFormat;
-        yFormat = _;
-        return chart;
-    };
-    
-    chart.xLabel  = function(_) {
-        if (!arguments.length)
-            return xLabel;
-        xLabel = _;
-        return chart;
-    };
-    
-    chart.yLabel  = function(_) {
-        if (!arguments.length)
-            return yLabel;
-        yLabel = _;
-        return chart;
-    };
-    
-    chart.xScale  = function(_) {
-        if (!arguments.length)
-            return xScale;
-        xScale = _;
-        return chart;
-    };
-    
-    chart.yScale  = function(_) {
-        if (!arguments.length)
-            return yScale;
-        yScale = _;
-        return chart;
-    };
-    
-    chart.xColumnName  = function(_) {
-        if (!arguments.length)
-            return xColumnName;
-        xColumnName = _;
-        return chart;
-    };
-    
-    chart.yColumnName  = function(_) {
-        if (!arguments.length)
-            return yColumnName;
-        yColumnName = _;
-        return chart;
-    };
-    
-    chart.xColumnOrdering  = function(_) {
-        if (!arguments.length)
-            return xColumnOrdering;
-        xColumnOrdering = _;
         return chart;
     };
     
