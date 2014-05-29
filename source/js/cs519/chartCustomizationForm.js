@@ -15,6 +15,10 @@ var getValues = function() {
         'yScale': getScale($('select[name=yFormat]>option:selected').val()),
         'xLabel': $('input[name=xLabel]').val(),
         'yLabel': $('input[name=yLabel]').val(),
+        'snapshotOnSeparateLevel': $('input[name=snapshotOnSeparateLevel]').is(':checked'),
+        'tagsDistance': $('input[name=tagsDistance]').val(),
+        'levelHeight': $('input[name=levelHeight]').val(),
+        'useShapes': $('input[name=useShapes]').is(':checked'),
     }
 }
 
@@ -42,8 +46,22 @@ var drawChart = function(valueObj) {
         chart.xLabel(valueObj.xLabel)
     if(chart['yLabel'] != undefined) 
         chart.yLabel(valueObj.yLabel)
+    if(chart['snapshotOnSeparateLevel'] != undefined) 
+        chart.snapshotOnSeparateLevel(valueObj.snapshotOnSeparateLevel)
+    if(chart['tagsDistance'] != undefined) 
+        chart.tagsDistance(valueObj.tagsDistance)
+    if(chart['levelHeight'] != undefined) 
+        chart.levelHeight(valueObj.levelHeight)
+    if(chart['useShapes'] != undefined) 
+        chart.useShapes(valueObj.useShapes)
     if(chart['parentDOMElement'] != undefined) 
         chart.parentDOMElement('#charts')
+    var chartId = 'visualization';
+    if( !document.getElementById(valueObj.chartType) ) {
+        d3.select('#' + chartId).remove();
+        d3.select('#charts').append('div').attr('id', chartId)
+            .append('div').attr('id', valueObj.chartType).append('svg')
+    }   
     chart()
 }
 
@@ -174,6 +192,10 @@ $(document).ready( function() {
     $('input[name=xParseFormat]').on('change', updateGraph)
     $('select[name=xFormat]').on('change', selectXFormat)
     $('select[name=yFormat]').on('change', selectYFormat)
-
+    $('input[name=snapshotOnSeparateLevel]').on('change', updateGraph)
+    $('input[name=tagsDistance]').on('change', updateGraph)
+    $('input[name=levelHeight]').on('change', updateGraph)
+    $('input[name=useShapes]').on('change', updateGraph)
+    
     selectChartType();
 });
