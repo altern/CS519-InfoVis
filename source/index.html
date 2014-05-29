@@ -51,6 +51,7 @@
         <script type="text/javascript" src="js/cs519/multiSeriesLineChart.js"></script>
         <script type="text/javascript" src="js/cs519/stackedAreaChart.js"></script>
         <script type="text/javascript" src="js/cs519/forcedDirectedGraph.js"></script>
+        <script type="text/javascript" src="js/cs519/streamlineGraph.js"></script>
         <script type="text/javascript" src="js/cs519/chartCustomizationForm.js"></script>
         
         <script type="text/javascript"> 
@@ -104,13 +105,20 @@
                         <span class="controlLabel">Chart type:</span><br />
                         <input type="radio" name="chartType" value="stackedAreaChart" />Stacked area chart<br />
                         <input type="radio" name="chartType" value="multiSeriesLineChart" />Multi-series line chart<br />
-                        <input type="radio" name="chartType" value="forcedDirectedGraph" checked="checked"/>Forced directed graph<br />
+                        <input type="radio" name="chartType" value="forcedDirectedGraph" />Forced directed graph<br />
+                        <input type="radio" name="chartType" value="streamlineGraph" checked="checked"/>Streamline graph<br />
+                        <br />
+                        <input type="checkbox" name="snapshotOnSeparateLevel" />Snapshot on separate level<br />
+                        <input type="checkbox" name="useShapes" />Use shapes<br />
+                        Distance between tags: <input type="text" name="tagsDistance" value="40" size="2"/><br />
+                        Level height: <input type="text" name="levelHeight" value="30" size="2"/><br />
                         <br />
                         <span class="controlLabel">Dataset:</span><br />
                         <select name="dataset">
                             <option name="dataset" value="browsers.csv" >browsers.csv</option>
                             <option name="dataset" value="temperatures.csv" >temperatures.csv</option>
-                            <option name="dataset" value="interests.json" selected="selected">interests.json</option>
+                            <option name="dataset" value="interests.json">interests.json</option>
+                            <option name="dataset" value="versions.json" selected="selected">versions.json</option>
                         </select><br /><br />
                         <span class="controlLabel">Name of data column for x-axis:</span><br />
                         <input type="text" size="20" name="xColumnName" value="date"/><br /><br />

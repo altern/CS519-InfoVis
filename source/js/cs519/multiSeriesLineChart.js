@@ -57,7 +57,7 @@ function multiSeriesLineChart() {
             csv.sort(function(a, b) {return d3[xColumnOrdering].call(d3, xFormat(a[xColumnName]), xFormat(b[xColumnName]));})
         }
 
-        color.domain(d3.keys(csv[0]).filter(function(key) { return key !== xColumnName; }));
+        color.domain(d3.keys(csv[0]).filter( function(key) { return key !== xColumnName; }) );
 
         csv.forEach(function(d) {
             if(xParseFormat.parse) {
