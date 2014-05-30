@@ -21,6 +21,7 @@ var getValues = function() {
         'boxSize': $('input[name=boxSize]').val(),
         'useShapes': $('input[name=useShapes]').is(':checked'),
         'nodeArrows': $('input[name=nodeArrows]').is(':checked'),
+        'maturityLevels': $('input[name=maturityLevels]').is(':checked'),
     }
 }
 
@@ -60,6 +61,8 @@ var drawChart = function(valueObj) {
         chart.useShapes(valueObj.useShapes)
     if(chart['nodeArrows'] != undefined) 
         chart.nodeArrows(valueObj.nodeArrows)
+    if(chart['maturityLevels'] != undefined) 
+        chart.maturityLevels(valueObj.maturityLevels)
     if(chart['parentDOMElement'] != undefined) 
         chart.parentDOMElement('#charts')
     var chartId = 'visualization';
@@ -204,6 +207,7 @@ $(document).ready( function() {
     $('input[name=boxSize]').on('change', updateGraph)
     $('input[name=useShapes]').on('change', updateGraph)
     $('input[name=nodeArrows]').on('change', updateGraph)
+    $('input[name=maturityLevels]').on('change', updateGraph)
     
     selectChartType();
 });

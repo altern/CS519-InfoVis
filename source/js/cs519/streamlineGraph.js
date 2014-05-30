@@ -13,8 +13,10 @@ function streamlineGraph() {
         levelHeight = 30,
         useShapes = true,
         nodeArrows = true,
+        maturityLevels = true,
         tagTextMargin = 10,
         arrowSize = 10;
+
     var dataProcessing = function(error, data) {
         
         var color = d3.scale.category20();
@@ -66,49 +68,121 @@ function streamlineGraph() {
         var yTopMargin = tagTextMargin;
 //        var levelHeight = ( height - yTopMargin ) / numberOfLevels;
         var xLeftMargin = tagTextMargin;
+        if(maturityLevels) {
+            xLeftMargin += 50;
+        }
         var xRightMargin = 100;
         
 //        var tagsDistance = ( width - xLeftMargin - xRightMargin ) / numberOfTags; 
         
-        if(snapshotOnSeparateLevel) {
+        if(!snapshotOnSeparateLevel && !maturityLevels) {
+            var ZERO_TAG_LEVEL = 0;
+            var MAINLINE_LEVEL = 0;
+            var MAINLINE_DEV_LEVEL = 0;
+            var MAINLINE_TEST_LEVEL = 0;
+            var MAINLINE_USER_LEVEL = 0;
+            var MAINLINE_TAGS_LEVEL = 0;
+            var BRANCH_LEVEL = 2;
+            var BRANCH_DEV_LEVEL = 2;
+            var BRANCH_TEST_LEVEL = 2;
+            var BRANCH_USER_LEVEL = 2;
+            var BRANCH_TAGS_LEVEL = 2;
+            svg.selectAll('.maturityLevelLabel').remove()
+            svg.selectAll('.maturityLevelShape').remove()
+        } else if(!maturityLevels) {
             var ZERO_TAG_LEVEL = 0;
             var MAINLINE_LEVEL = 1;
             var MAINLINE_TAGS_LEVEL = 2;
+            var MAINLINE_DEV_LEVEL = 2;
+            var MAINLINE_TEST_LEVEL = 2;
+            var MAINLINE_USER_LEVEL = 2;
             var BRANCH_LEVEL = 3;
             var BRANCH_TAGS_LEVEL = 4;
+            var BRANCH_DEV_LEVEL = 4;
+            var BRANCH_TEST_LEVEL = 4;
+            var BRANCH_USER_LEVEL = 4;
+            svg.selectAll('.maturityLevelLabel').remove()
+            svg.selectAll('.maturityLevelShape').remove()
         } else {
             var ZERO_TAG_LEVEL = 0;
-            var MAINLINE_LEVEL = 0;
-            var MAINLINE_TAGS_LEVEL = 0;
-            var BRANCH_LEVEL = 2;
-            var BRANCH_TAGS_LEVEL = 2;
+            var MAINLINE_LEVEL = 1;
+            var MAINLINE_TAGS_LEVEL = 2;
+            var MAINLINE_DEV_LEVEL = 2;
+            var MAINLINE_TEST_LEVEL = 3;
+            var MAINLINE_USER_LEVEL = 4;
+            var BRANCH_LEVEL = 5;
+            var BRANCH_TAGS_LEVEL = 6;
+            var BRANCH_DEV_LEVEL = 6;
+            var BRANCH_TEST_LEVEL = 7;
+            var BRANCH_USER_LEVEL = 8;
+            
+            var maturityLevelsList = [
+                {'name': 'DEV', 'level': MAINLINE_DEV_LEVEL, color: '#e5f5e0'}, 
+                {'name': 'TEST', 'level': MAINLINE_TEST_LEVEL, color: '#a1d99b'},
+                {'name': 'USER', 'level': MAINLINE_USER_LEVEL, color: '#31a354'},
+                {'name': 'DEV', 'level': BRANCH_DEV_LEVEL, color: '#e5f5e0'},
+                {'name': 'TEST', 'level': BRANCH_TEST_LEVEL, color: '#a1d99b'},
+                {'name': 'USER', 'level': BRANCH_USER_LEVEL, color: '#31a354'} 
+            ]
+            
+            svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
+                .append('rect')
+                .attr("class", "maturityLevelShape")
+                .attr("width", width - xLeftMargin - xRightMargin)
+                .attr("height", levelHeight)
+                .attr('x', xLeftMargin)
+                .attr('y', function(d) {
+                    return d.level*levelHeight - levelHeight*0.5 + yTopMargin ;
+                })
+                .style("stroke", 'none')
+                .style("fill", function(d) { return d.color })
+        
+            svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).enter()
+                .append('text')
+                .text(function(d) {return d.name} )
+                .attr("class", "maturityLevelLabel")
+                .attr("text-anchor", "left")
+                .attr("x", function(d) {
+                    return (0);
+                })
+                .attr("y", function(d) {
+                    return ( d.level*levelHeight + yTopMargin + 3 );
+                })
+            svg.selectAll('.maturityLevelLabel').data(maturityLevelsList)
+                .attr("x", function(d) {
+                    return (0);
+                })
+                .attr("y", function(d) {
+                    return ( d.level*levelHeight + yTopMargin + 3 );
+                })
         }
+        
         
         var branchConnectorNodes = [
             {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*BRANCH_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*BRANCH_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin},
         ] 
 
         var tagConnectorNodes = [ 
             {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin },
-            {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_TAGS_LEVEL   + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_TAGS_LEVEL   + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_TAGS_LEVEL  + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_TAGS_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_DEV_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_TEST_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_USER_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_USER_LEVEL  + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
         ]
         
         var arrowNodes = [ 
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin}, {x:width - xLeftMargin - xRightMargin, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
             {x:xLeftMargin + tagsDistance*3, y:levelHeight*BRANCH_LEVEL + yTopMargin}, {x:xLeftMargin + tagsDistance*8, y:levelHeight*BRANCH_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin}, {x:width - xLeftMargin - xRightMargin, y:levelHeight*BRANCH_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*BRANCH_LEVEL + yTopMargin},
         ];
         var branchConnectors = [
             {s:0, t:1},
@@ -134,7 +208,7 @@ function streamlineGraph() {
             {s:2, t:3, version:"x", branchName: "branch1"}, 
             {s:4, t:5, version:"x", branchName: "branch2"}, 
         ];
-    
+        
         var tagConnectorEnter = svg.selectAll(".tagConnector").data(tagConnectors).enter()
         var tagConnectorUpdate = svg.selectAll(".tagConnector").data(tagConnectors)
         
@@ -599,6 +673,13 @@ function streamlineGraph() {
             return nodeArrows;
         nodeArrows = _;
         return nodeArrows;
+    };
+    
+    chart.maturityLevels  = function(_) {
+        if (!arguments.length)
+            return maturityLevels;
+        maturityLevels = _;
+        return maturityLevels;
     };
     
     return chart;
