@@ -83,12 +83,15 @@ function streamlineGraph() {
             var MAINLINE_USER_LEVEL = 0;
             var MAINLINE_TAGS_LEVEL = 0;
             var BRANCH_LEVEL = 2;
-            var BRANCH_DEV_LEVEL = 2;
+            var BRANCH_TAGS_LEVEL = 2;
             var BRANCH_TEST_LEVEL = 2;
             var BRANCH_USER_LEVEL = 2;
-            var BRANCH_TAGS_LEVEL = 2;
-            svg.selectAll('.maturityLevelLabel').remove()
-            svg.selectAll('.maturityLevelShape').remove()
+            var BRANCH_RC_LEVEL = 2;
+            var BRANCH_PROD_LEVEL = 2;
+            svg.selectAll('.maturityLevelLabel')
+                .style('visibility', 'hidden')
+            svg.selectAll('.maturityLevelShape')
+                .style('visibility', 'hidden')
         } else if(!maturityLevels) {
             var ZERO_TAG_LEVEL = 0;
             var MAINLINE_LEVEL = 1;
@@ -98,11 +101,14 @@ function streamlineGraph() {
             var MAINLINE_USER_LEVEL = 2;
             var BRANCH_LEVEL = 3;
             var BRANCH_TAGS_LEVEL = 4;
-            var BRANCH_DEV_LEVEL = 4;
             var BRANCH_TEST_LEVEL = 4;
             var BRANCH_USER_LEVEL = 4;
-            svg.selectAll('.maturityLevelLabel').remove()
-            svg.selectAll('.maturityLevelShape').remove()
+            var BRANCH_RC_LEVEL = 4;
+            var BRANCH_PROD_LEVEL = 4;
+            svg.selectAll('.maturityLevelLabel')
+                .style('visibility', 'hidden')
+            svg.selectAll('.maturityLevelShape')
+                .style('visibility', 'hidden')
         } else {
             var ZERO_TAG_LEVEL = 0;
             var MAINLINE_LEVEL = 1;
@@ -112,17 +118,24 @@ function streamlineGraph() {
             var MAINLINE_USER_LEVEL = 4;
             var BRANCH_LEVEL = 5;
             var BRANCH_TAGS_LEVEL = 6;
-            var BRANCH_DEV_LEVEL = 6;
-            var BRANCH_TEST_LEVEL = 7;
-            var BRANCH_USER_LEVEL = 8;
+            var BRANCH_TEST_LEVEL = 6;
+            var BRANCH_USER_LEVEL = 7;
+            var BRANCH_RC_LEVEL = 8;
+            var BRANCH_PROD_LEVEL = 9;
+            
+            svg.selectAll('.maturityLevelLabel')
+                .style('visibility', 'visible')
+            svg.selectAll('.maturityLevelShape')
+                .style('visibility', 'visible')
             
             var maturityLevelsList = [
-                {'name': 'DEV', 'level': MAINLINE_DEV_LEVEL, color: '#e5f5e0'}, 
-                {'name': 'TEST', 'level': MAINLINE_TEST_LEVEL, color: '#a1d99b'},
-                {'name': 'USER', 'level': MAINLINE_USER_LEVEL, color: '#31a354'},
-                {'name': 'DEV', 'level': BRANCH_DEV_LEVEL, color: '#e5f5e0'},
-                {'name': 'TEST', 'level': BRANCH_TEST_LEVEL, color: '#a1d99b'},
-                {'name': 'USER', 'level': BRANCH_USER_LEVEL, color: '#31a354'} 
+                {'name': 'DEV', 'level': MAINLINE_DEV_LEVEL, color: '#edf8e9'}, 
+                {'name': 'TEST', 'level': MAINLINE_TEST_LEVEL, color: '#bae4b3'},
+                {'name': 'USER', 'level': MAINLINE_USER_LEVEL, color: '#74c476'},
+                {'name': 'TEST', 'level': BRANCH_TEST_LEVEL, color: '#bae4b3'},
+                {'name': 'USER', 'level': BRANCH_USER_LEVEL, color: '#74c476'}, 
+                {'name': 'RC', 'level': BRANCH_RC_LEVEL, color: '#31a354'}, 
+                {'name': 'PROD', 'level': BRANCH_PROD_LEVEL, color: '#006d2c'} 
             ]
             
             svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
@@ -169,14 +182,15 @@ function streamlineGraph() {
             {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_DEV_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_TEST_LEVEL   + yTopMargin   },
             {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_TEST_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_USER_LEVEL   + yTopMargin   },
             {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_USER_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_USER_LEVEL  + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_RC_LEVEL  + yTopMargin   },
             {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*12, y:levelHeight*BRANCH_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*BRANCH_PROD_LEVEL + yTopMargin   },
         ]
         
         var arrowNodes = [ 
@@ -201,7 +215,8 @@ function streamlineGraph() {
             {s:16, t:17, version: "8"},
             {s:18, t:19, version: "9"},
             {s:20, t:21, version: "10"},
-            {s:22, t:23, version: "11"}
+            {s:22, t:23, version: "11"},
+            {s:24, t:25, version: "12"},
         ]
         var arrows = [ 
             {s:0, t:1, version:"x", branchName: "trunk"}, 
