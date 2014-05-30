@@ -86,9 +86,11 @@ line.arrow, line.connector, .branchConnector, .tagConnector {
     stroke: #666;
     stroke-width: 1px;
 }
-marker#arrow {
+
+marker#branchArrow, marker#tagArrow {
     fill: #666;
 }
+
 .link-label {
     font-family: sans-serif;
     font-size: 11px;

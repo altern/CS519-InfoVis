@@ -11,8 +11,10 @@ function streamlineGraph() {
         snapshotOnSeparateLevel = true,
         tagsDistance = 40,
         levelHeight = 30,
-        useShapes = true;
-
+        useShapes = true,
+        nodeArrows = true,
+        tagTextMargin = 10;
+        
     var dataProcessing = function(error, data) {
         
         var color = d3.scale.category20();
@@ -25,7 +27,7 @@ function streamlineGraph() {
             }))
         
         svg.append("svg:defs").selectAll("marker")
-            .data(["arrow"])
+            .data(["branchArrow"])
             .enter().append("svg:marker")
             .attr("id", String)
             .attr("viewBox", "0 -5 10 10")
@@ -36,8 +38,19 @@ function streamlineGraph() {
             .attr("orient", "auto")
             .append("svg:path")
             .attr("d", "M0,-5L10,0L0,5");
+        svg.append("svg:defs").selectAll("marker")
+            .data(["tagArrow"])
+            .enter().append("svg:marker")
+            .attr("id", String)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20)
+            .attr("refY", 0)
+            .attr("markerWidth", 10)
+            .attr("markerHeight", 10)
+            .attr("orient", "auto")
+            .append("svg:path")
+            .attr("d", "M0,-5L10,0L0,5");
     
-        
         var numberOfTags = 12;
         var tags = Array.apply(null, {length: numberOfTags}).map(Number.call, Number)
         var numberOfLevels = 5;
@@ -45,7 +58,7 @@ function streamlineGraph() {
 //        var levelHeight = ( height - yTopMargin ) / numberOfLevels;
         var xLeftMargin = 10;
         var xRightMargin = 100;
-        var tagTextMargin = 10;
+        
 //        var tagsDistance = ( width - xLeftMargin - xRightMargin ) / numberOfTags; 
         
         if(snapshotOnSeparateLevel) {
@@ -113,15 +126,37 @@ function streamlineGraph() {
             {s:4, t:5, version:"x", branchName: "branch2"}, 
         ];
     
-        var tagConnector = svg.selectAll(".tagConnector").data(tagConnectors)
-        tagConnector.enter()
-            .append("line")
-            .attr("class", "tagConnector")
-            .attr("x1", function(d) { return tagConnectorNodes[d.s].x; })
-            .attr("x2", function(d) { return tagConnectorNodes[d.t].x; })
-            .attr("y1", function(d) { return tagConnectorNodes[d.s].y; })
-            .attr("y2", function(d) { return tagConnectorNodes[d.t].y; })
-        tagConnector.transition().duration(1000).ease("quad")
+        var tagConnectorEnter = svg.selectAll(".tagConnector").data(tagConnectors).enter()
+        var tagConnectorUpdate = svg.selectAll(".tagConnector").data(tagConnectors)
+        
+        if(nodeArrows /*&& snapshotOnSeparateLevel */ ) {
+            tagConnectorEnter
+                .append("line")
+                .attr("class", "tagConnector")
+                .attr("marker-end", "url(#tagArrow)")
+                .attr("x1", function(d) { return tagConnectorNodes[d.s].x; })
+                .attr("x2", function(d) { return tagConnectorNodes[d.t].x; })
+                .attr("y1", function(d) { return tagConnectorNodes[d.s].y; })
+                .attr("y2", function(d) { return tagConnectorNodes[d.t].y; })
+            tagConnectorUpdate
+                .attr("class", "tagConnector")
+                .attr("marker-end", "url(#tagArrow)")
+                
+        } else {
+           //svg.selectAll('.tagConnector').remove()
+           tagConnectorEnter
+                .append("line")
+                .attr("class", "tagConnector")
+                .attr("x1", function(d) { return tagConnectorNodes[d.s].x; })
+                .attr("x2", function(d) { return tagConnectorNodes[d.t].x; })
+                .attr("y1", function(d) { return tagConnectorNodes[d.s].y; })
+                .attr("y2", function(d) { return tagConnectorNodes[d.t].y; }) 
+            tagConnectorUpdate
+                .attr("class", "tagConnector")
+                .attr("marker-end", "")
+                
+        }
+        tagConnectorUpdate.transition().duration(1000).ease("quad")
             .attr("x1", function(d) { return tagConnectorNodes[d.s].x; })
             .attr("x2", function(d) { return tagConnectorNodes[d.t].x; })
             .attr("y1", function(d) { return tagConnectorNodes[d.s].y; })
@@ -145,9 +180,9 @@ function streamlineGraph() {
         arrow.enter()
             .append("line")
             .attr("class", "link arrow")
+            .attr("marker-end", "url(#branchArrow)")
             .attr("x1", function(d) { return arrowNodes[d.s].x; })
             .attr("x2", function(d) { return arrowNodes[d.t].x; })
-            .attr("marker-end", "url(#arrow)")
             .attr("y1", function(d) { return arrowNodes[d.s].y; })
             .attr("y2", function(d) { return arrowNodes[d.t].y; });
         arrow.transition().duration(1000).ease("quad")
@@ -167,9 +202,10 @@ function streamlineGraph() {
             .attr('class', 'branchGroup')
             .attr('transform', transformBranch)
         var branchGroupUpdate = svg.selectAll('.branchGroup').data(arrows)
-        svg.selectAll('.branchGroup').data(arrows).transition().duration(1000).ease("quad")
-            .attr('transform', transformBranch)
-            
+        branchGroupUpdate.transition().duration(1000).ease("quad")
+            .attr('transform', transformBranch) 
+        svg.selectAll('.branchShape').remove();
+        svg.selectAll('.branchVersion').remove();    
         if (useShapes) {
             branchGroupEnter.append('circle')
                 .attr("class", "branchShape")
@@ -192,15 +228,16 @@ function streamlineGraph() {
                 .attr("y", function(d) {
                     return ( 3 );
                 })
-            branchGroupUpdate.append('circle')
+            branchGroupUpdate
+                .append('circle')
                 .attr("class", "branchShape")
                 .attr("r", 10)
                 .style("fill", '#eee')
                 .style("stroke", 'black')
-                .attr("cx", function(d) {
+                .attr("cx", function() {
                     return (tagsDistance/2);
                 })
-                .attr('cy', function(d) {
+                .attr('cy', function() {
                     return ( 0 );
                 })
             branchGroupUpdate.append("text")
@@ -214,26 +251,25 @@ function streamlineGraph() {
                     return ( 3 );
                 })
         } else {
-            svg.selectAll('.branchShape').remove();
-            svg.selectAll('.branchVersion').remove();
+            
             branchGroupEnter.append("text")
                 .text(function(d) { return d.version; })
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
-                .attr("x", function(d) {
+                .attr("x", function() {
                     return (tagsDistance/2);
                 })
-                .attr("y", function(d) {
+                .attr("y", function() {
                     return ( 3 );
                 })
             branchGroupUpdate.append("text")
                 .text(function(d) { return d.version; })
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
-                .attr("x", function(d) {
+                .attr("x", function() {
                     return (tagsDistance/2);
                 })
-                .attr("y", function(d) {
+                .attr("y", function() {
                     return ( 3 );
                 })
         }
@@ -540,6 +576,13 @@ function streamlineGraph() {
             return useShapes;
         useShapes = _;
         return useShapes;
+    };
+    
+    chart.nodeArrows  = function(_) {
+        if (!arguments.length)
+            return nodeArrows;
+        nodeArrows = _;
+        return nodeArrows;
     };
     
     return chart;
