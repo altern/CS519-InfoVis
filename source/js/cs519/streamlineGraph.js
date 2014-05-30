@@ -13,8 +13,8 @@ function streamlineGraph() {
         levelHeight = 30,
         useShapes = true,
         nodeArrows = true,
-        tagTextMargin = 10;
-        
+        tagTextMargin = 10,
+        arrowSize = 10;
     var dataProcessing = function(error, data) {
         
         var color = d3.scale.category20();
@@ -30,11 +30,12 @@ function streamlineGraph() {
             .data(["branchArrow"])
             .enter().append("svg:marker")
             .attr("id", String)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 10)
+            .attr("class", 'branchArrow')
+            .attr("viewBox", "0 -5 " + arrowSize + " " + arrowSize)
+            .attr("refX", arrowSize)
             .attr("refY", 0)
-            .attr("markerWidth", 10)
-            .attr("markerHeight", 10)
+            .attr("markerWidth", arrowSize)
+            .attr("markerHeight", arrowSize)
             .attr("orient", "auto")
             .append("svg:path")
             .attr("d", "M0,-5L10,0L0,5");
@@ -42,21 +43,29 @@ function streamlineGraph() {
             .data(["tagArrow"])
             .enter().append("svg:marker")
             .attr("id", String)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 20)
+            .attr("class", 'tagArrow')
+            .attr("viewBox", "0 -5 " + arrowSize + " " + arrowSize)
+            .attr("refX", tagTextMargin + arrowSize)
             .attr("refY", 0)
-            .attr("markerWidth", 10)
-            .attr("markerHeight", 10)
+            .attr("markerWidth", arrowSize)
+            .attr("markerHeight", arrowSize)
             .attr("orient", "auto")
             .append("svg:path")
             .attr("d", "M0,-5L10,0L0,5");
+        svg.selectAll(".tagArrow")
+            .data(["tagArrow"])
+            .attr("refX", tagTextMargin + arrowSize)
+        svg.selectAll(".tagArrow")
+            .data(["tagArrow"])
+            .transition().duration(1000).ease("quad")
+            .attr("refX", tagTextMargin + arrowSize)
     
         var numberOfTags = 12;
         var tags = Array.apply(null, {length: numberOfTags}).map(Number.call, Number)
         var numberOfLevels = 5;
-        var yTopMargin = 20;
+        var yTopMargin = tagTextMargin;
 //        var levelHeight = ( height - yTopMargin ) / numberOfLevels;
-        var xLeftMargin = 10;
+        var xLeftMargin = tagTextMargin;
         var xRightMargin = 100;
         
 //        var tagsDistance = ( width - xLeftMargin - xRightMargin ) / numberOfTags; 
@@ -569,6 +578,13 @@ function streamlineGraph() {
             return levelHeight;
         levelHeight = _;
         return levelHeight;
+    };
+    
+    chart.boxSize  = function(_) {
+        if (!arguments.length)
+            return tagTextMargin;
+        tagTextMargin = _/2;
+        return tagTextMargin*2;
     };
     
     chart.useShapes  = function(_) {

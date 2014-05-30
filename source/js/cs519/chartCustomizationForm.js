@@ -55,7 +55,7 @@ var drawChart = function(valueObj) {
     if(chart['levelHeight'] != undefined) 
         chart.levelHeight(valueObj.levelHeight)
     if(chart['boxSize'] != undefined) 
-        chart.levelHeight(valueObj.boxSize)
+        chart.boxSize(valueObj.boxSize)
     if(chart['useShapes'] != undefined) 
         chart.useShapes(valueObj.useShapes)
     if(chart['nodeArrows'] != undefined) 
