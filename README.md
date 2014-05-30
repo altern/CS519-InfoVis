@@ -1,5 +1,6 @@
 # Installation
 
+1. Make sure you have NodeJS installed on your computer. In order to do that, you need to run `node -v` command in command prompt. If you have NodeJS installed on your computer, you will see information about your current version. Install NodeJS from [http://nodejs.org](http://nodejs.org) if you don't have it.
 1. Run `start.sh` (or `start.bat` if you are on windows)
 1. Open URL [http://localhost:8080](http://localhost:8080)
 
