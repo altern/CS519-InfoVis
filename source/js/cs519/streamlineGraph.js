@@ -228,8 +228,14 @@ function streamlineGraph() {
             {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_USER_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_DEV_LEVEL2  + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*11, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*RELEASE_BRANCH_TEST_LEVEL1 + yTopMargin   },
             {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL2 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*13, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*13, y:levelHeight*RELEASE_BRANCH_USER_LEVEL1 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*14, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*14, y:levelHeight*EXPERIMENTAL_BRANCH_DEV_LEVEL2 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*15, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*15, y:levelHeight*RELEASE_BRANCH_RC_LEVEL1 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*16, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*16, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL2 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*17, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*RELEASE_BRANCH_PROD_LEVEL1 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*18, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*EXPERIMENTAL_BRANCH_USER_LEVEL2 + yTopMargin   },
         ]
         
         var arrowNodes = [ 
@@ -247,19 +253,22 @@ function streamlineGraph() {
             {s:8, t:9}
         ]
         var tagConnectors = [
-            {s:0, t:1, version: "0"},
-            {s:2, t:3, version: "1"},
-            {s:4, t:5, version: "2"},
-            {s:6, t:7, version: "3"},
-            {s:8, t:9, version: "4"},
-            {s:10, t:11, version: "5"},
-            {s:12, t:13, version: "6"},
-            {s:14, t:15, version: "7"},
-            {s:16, t:17, version: "8"},
-            {s:18, t:19, version: "9"},
-            {s:20, t:21, version: "10"},
-            {s:22, t:23, version: "11"},
-            {s:24, t:25, version: "12"},
+            {s:0, t:1, version: "0.x.x"},
+            {s:2, t:3, version: "x.1"},
+            {s:4, t:5, version: "x.2"},
+            {s:6, t:7, version: "x.3"},
+            {s:8, t:9, version: "x.4"},
+            {s:10, t:11, version: "x.5"},
+            {s:12, t:13, version: "x.6"},
+            {s:14, t:15, version: "x.7"},
+            {s:16, t:17, version: "x.8"},
+            {s:18, t:19, version: "x.9"},
+            {s:20, t:21, version: "x.10"},
+            {s:22, t:23, version: "1.0"},
+            {s:24, t:25, version: "x.11"},
+            {s:26, t:27, version: "x.12"},
+            {s:28, t:29, version: "x.13"},
+            {s:30, t:31, version: "x.14"},
         ]
         var arrows = [ 
             {s:0, t:1, version:"x.x", branchName: "trunk"}, 
