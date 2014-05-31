@@ -59,13 +59,18 @@ function getLevelsConfiguration(paramsObj) {
             resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
             resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
         }
+        var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
         while (paramsObj.numberOfReleaseBranches-- > 0) {
             resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
         }
-        resultObj.RELEASE_BRANCH_TEST_LEVELS.push(++levelsCounter)
-        resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
-        resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
-        resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+        ++levelsCounter
+        while (paramsObj.numberOfReleaseBranches-- > 0) {
+            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        }
     } else {
         resultObj.ZERO_TAG_LEVEL = levelsCounter++;
         resultObj.MAINLINE_LEVEL = levelsCounter++;
