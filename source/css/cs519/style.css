@@ -82,12 +82,21 @@
   stroke-opacity: .6;
 }
 
-line.arrow, line.connector, .branchConnector, .tagConnector {
+line.arrow {
+    /*stroke: #fc8d59;*/
+    stroke: #666;
+    stroke-width: 4px;
+} 
+.branchConnector, .tagConnector {
     stroke: #666;
     stroke-width: 1px;
 }
 
-marker#branchArrow, marker#tagArrow {
+marker#branchArrow {
+    /*fill: #fc8d59;*/
+    fill: #666;
+}
+marker#tagArrow {
     fill: #666;
 }
 
