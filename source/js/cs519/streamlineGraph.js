@@ -82,13 +82,24 @@ function streamlineGraph() {
             var MAINLINE_DEV_LEVEL = 0;
             var MAINLINE_TEST_LEVEL = 0;
             var MAINLINE_USER_LEVEL = 0;
-            var MAINLINE_TAGS_LEVEL = 0;
-            var BRANCH_LEVEL = 2;
-            var BRANCH_TAGS_LEVEL = 2;
-            var BRANCH_TEST_LEVEL = 2;
-            var BRANCH_USER_LEVEL = 2;
-            var BRANCH_RC_LEVEL = 2;
-            var BRANCH_PROD_LEVEL = 2;
+            var EXPERIMENTAL_BRANCH_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_LEVEL2 = 3;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 3;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 3;
+            var RELEASE_BRANCH_LEVEL1 = 4;
+            var RELEASE_BRANCH_LEVEL2 = 5;
+            var RELEASE_BRANCH_TEST_LEVEL1 = 6;
+            var RELEASE_BRANCH_USER_LEVEL1 = 6;
+            var RELEASE_BRANCH_RC_LEVEL1 = 6;
+            var RELEASE_BRANCH_PROD_LEVEL1 = 6;
+            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
+            var RELEASE_BRANCH_USER_LEVEL2 = 6;
+            var RELEASE_BRANCH_RC_LEVEL2 = 6;
+            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
             svg.selectAll('.maturityLevelShape')
@@ -96,16 +107,27 @@ function streamlineGraph() {
         } else if(!maturityLevels) {
             var ZERO_TAG_LEVEL = 0;
             var MAINLINE_LEVEL = 1;
-            var MAINLINE_TAGS_LEVEL = 2;
             var MAINLINE_DEV_LEVEL = 2;
             var MAINLINE_TEST_LEVEL = 2;
             var MAINLINE_USER_LEVEL = 2;
-            var BRANCH_LEVEL = 3;
-            var BRANCH_TAGS_LEVEL = 4;
-            var BRANCH_TEST_LEVEL = 4;
-            var BRANCH_USER_LEVEL = 4;
-            var BRANCH_RC_LEVEL = 4;
-            var BRANCH_PROD_LEVEL = 4;
+            var EXPERIMENTAL_BRANCH_LEVEL1 = 3;
+            var EXPERIMENTAL_BRANCH_LEVEL2 = 4;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 2;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 2;
+            var RELEASE_BRANCH_LEVEL1 = 5;
+            var RELEASE_BRANCH_LEVEL2 = 6;
+            var RELEASE_BRANCH_TEST_LEVEL1 = 5;
+            var RELEASE_BRANCH_USER_LEVEL1 = 5;
+            var RELEASE_BRANCH_RC_LEVEL1 = 5;
+            var RELEASE_BRANCH_PROD_LEVEL1 = 5;
+            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
+            var RELEASE_BRANCH_USER_LEVEL2 = 6;
+            var RELEASE_BRANCH_RC_LEVEL2 = 6;
+            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
             svg.selectAll('.maturityLevelShape')
@@ -113,16 +135,27 @@ function streamlineGraph() {
         } else {
             var ZERO_TAG_LEVEL = 0;
             var MAINLINE_LEVEL = 1;
-            var MAINLINE_TAGS_LEVEL = 2;
             var MAINLINE_DEV_LEVEL = 2;
             var MAINLINE_TEST_LEVEL = 3;
             var MAINLINE_USER_LEVEL = 4;
-            var BRANCH_LEVEL = 5;
-            var BRANCH_TAGS_LEVEL = 6;
-            var BRANCH_TEST_LEVEL = 6;
-            var BRANCH_USER_LEVEL = 7;
-            var BRANCH_RC_LEVEL = 8;
-            var BRANCH_PROD_LEVEL = 9;
+            var EXPERIMENTAL_BRANCH_LEVEL1 = 5;
+            var EXPERIMENTAL_BRANCH_LEVEL2 = 6;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 3;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 4;
+            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
+            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
+            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 4;
+            var RELEASE_BRANCH_LEVEL1 = 7;
+            var RELEASE_BRANCH_LEVEL2 = 8;
+            var RELEASE_BRANCH_TEST_LEVEL1 = 9;
+            var RELEASE_BRANCH_USER_LEVEL1 = 10;
+            var RELEASE_BRANCH_RC_LEVEL1 = 11;
+            var RELEASE_BRANCH_PROD_LEVEL1 = 12;
+            var RELEASE_BRANCH_TEST_LEVEL2 = 9;
+            var RELEASE_BRANCH_USER_LEVEL2 = 10;
+            var RELEASE_BRANCH_RC_LEVEL2 = 11;
+            var RELEASE_BRANCH_PROD_LEVEL2 = 12;
             
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'visible')
@@ -133,10 +166,10 @@ function streamlineGraph() {
                 {'name': 'DEV', 'level': MAINLINE_DEV_LEVEL, color: '#edf8e9'}, 
                 {'name': 'TEST', 'level': MAINLINE_TEST_LEVEL, color: '#bae4b3'},
                 {'name': 'USER', 'level': MAINLINE_USER_LEVEL, color: '#74c476'},
-                {'name': 'TEST', 'level': BRANCH_TEST_LEVEL, color: '#bae4b3'},
-                {'name': 'USER', 'level': BRANCH_USER_LEVEL, color: '#74c476'}, 
-                {'name': 'RC', 'level': BRANCH_RC_LEVEL, color: '#31a354'}, 
-                {'name': 'PROD', 'level': BRANCH_PROD_LEVEL, color: '#006d2c'} 
+                {'name': 'TEST', 'level': RELEASE_BRANCH_TEST_LEVEL1, color: '#bae4b3'},
+                {'name': 'USER', 'level': RELEASE_BRANCH_USER_LEVEL1, color: '#74c476'}, 
+                {'name': 'RC', 'level': RELEASE_BRANCH_RC_LEVEL1, color: '#31a354'}, 
+                {'name': 'PROD', 'level': RELEASE_BRANCH_PROD_LEVEL1, color: '#006d2c'} 
             ]
             
             svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
@@ -150,7 +183,11 @@ function streamlineGraph() {
                 })
                 .style("stroke", 'none')
                 .style("fill", function(d) { return d.color })
-        
+            svg.selectAll('.maturityLevelShape').data(maturityLevelsList)
+                .transition().duration(1000).ease("quad")
+                .attr('y', function(d) {
+                    return d.level*levelHeight - levelHeight*0.5 + yTopMargin ;
+                })
             svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).enter()
                 .append('text')
                 .text(function(d) {return d.name} )
@@ -173,8 +210,10 @@ function streamlineGraph() {
         
         var branchConnectorNodes = [
             {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*BRANCH_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*5, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*7, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin},
         ] 
 
         var tagConnectorNodes = [ 
@@ -182,26 +221,30 @@ function streamlineGraph() {
             {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*BRANCH_TEST_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*4, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL1   + yTopMargin   },
             {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_LEVEL   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*BRANCH_USER_LEVEL   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*6, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*EXPERIMENTAL_BRANCH_USER_LEVEL1   + yTopMargin   },
             {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
             {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_USER_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*BRANCH_RC_LEVEL  + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_DEV_LEVEL2  + yTopMargin   },
             {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*12, y:levelHeight*BRANCH_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*BRANCH_PROD_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL2 + yTopMargin   },
         ]
         
         var arrowNodes = [ 
             {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*BRANCH_LEVEL + yTopMargin}, {x:xLeftMargin + tagsDistance*8, y:levelHeight*BRANCH_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*BRANCH_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*BRANCH_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin},
         ];
         var branchConnectors = [
             {s:0, t:1},
             {s:2, t:3},
             {s:4, t:5},
+            {s:6, t:7},
+            {s:8, t:9}
         ]
         var tagConnectors = [
             {s:0, t:1, version: "0"},
@@ -219,9 +262,11 @@ function streamlineGraph() {
             {s:24, t:25, version: "12"},
         ]
         var arrows = [ 
-            {s:0, t:1, version:"x", branchName: "trunk"}, 
-            {s:2, t:3, version:"x", branchName: "branch1"}, 
-            {s:4, t:5, version:"x", branchName: "branch2"}, 
+            {s:0, t:1, version:"x.x", branchName: "trunk"}, 
+            {s:2, t:3, version:"x.x", branchName: "branch1"}, 
+            {s:4, t:5, version:"1.x", branchName: "release1"}, 
+            {s:6, t:7, version:"2.x", branchName: "release2"}, 
+            {s:8, t:9, version:"x.x", branchName: "branch2"}, 
         ];
         
         var arrow = svg.selectAll(".arrow").data(arrows)
@@ -308,7 +353,7 @@ function streamlineGraph() {
         if (useShapes) {
             branchGroupEnter.append('circle')
                 .attr("class", "branchShape")
-                .attr("r", 10)
+                .attr("r", tagTextMargin)
                 .style("fill", '#eee')
                 .style("stroke", 'black')
                 .attr("cx", function(d) {
@@ -330,7 +375,7 @@ function streamlineGraph() {
             branchGroupUpdate
                 .append('circle')
                 .attr("class", "branchShape")
-                .attr("r", 10)
+                .attr("r", tagTextMargin)
                 .style("fill", '#eee')
                 .style("stroke", 'black')
                 .attr("cx", function() {
@@ -670,7 +715,7 @@ function streamlineGraph() {
         return levelHeight;
     };
     
-    chart.boxSize  = function(_) {
+    chart.shapeSize  = function(_) {
         if (!arguments.length)
             return tagTextMargin;
         tagTextMargin = _/2;

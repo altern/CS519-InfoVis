@@ -84,20 +84,20 @@
 
 line.arrow {
     /*stroke: #fc8d59;*/
-    stroke: #666;
+    stroke: #888;
     stroke-width: 4px;
 } 
 .branchConnector, .tagConnector {
-    stroke: #666;
+    stroke: #888;
     stroke-width: 1px;
 }
 
 marker#branchArrow {
     /*fill: #fc8d59;*/
-    fill: #666;
+    fill: #888;
 }
 marker#tagArrow {
-    fill: #666;
+    fill: #888;
 }
 
 .link-label {

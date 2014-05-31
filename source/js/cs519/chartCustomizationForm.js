@@ -18,7 +18,7 @@ var getValues = function() {
         'snapshotOnSeparateLevel': $('input[name=snapshotOnSeparateLevel]').is(':checked'),
         'tagsDistance': $('input[name=tagsDistance]').val(),
         'levelHeight': $('input[name=levelHeight]').val(),
-        'boxSize': $('input[name=boxSize]').val(),
+        'shapeSize': $('input[name=shapeSize]').val(),
         'useShapes': $('input[name=useShapes]').is(':checked'),
         'nodeArrows': $('input[name=nodeArrows]').is(':checked'),
         'maturityLevels': $('input[name=maturityLevels]').is(':checked'),
@@ -55,8 +55,8 @@ var drawChart = function(valueObj) {
         chart.tagsDistance(valueObj.tagsDistance)
     if(chart['levelHeight'] != undefined) 
         chart.levelHeight(valueObj.levelHeight)
-    if(chart['boxSize'] != undefined) 
-        chart.boxSize(valueObj.boxSize)
+    if(chart['shapeSize'] != undefined) 
+        chart.shapeSize(valueObj.shapeSize)
     if(chart['useShapes'] != undefined) 
         chart.useShapes(valueObj.useShapes)
     if(chart['nodeArrows'] != undefined) 
@@ -204,7 +204,7 @@ $(document).ready( function() {
     $('input[name=snapshotOnSeparateLevel]').on('change', updateGraph)
     $('input[name=tagsDistance]').on('change', updateGraph)
     $('input[name=levelHeight]').on('change', updateGraph)
-    $('input[name=boxSize]').on('change', updateGraph)
+    $('input[name=shapeSize]').on('change', updateGraph)
     $('input[name=useShapes]').on('change', updateGraph)
     $('input[name=nodeArrows]').on('change', updateGraph)
     $('input[name=maturityLevels]').on('change', updateGraph)
