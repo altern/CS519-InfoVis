@@ -22,6 +22,8 @@ var getValues = function() {
         'useShapes': $('input[name=useShapes]').is(':checked'),
         'nodeArrows': $('input[name=nodeArrows]').is(':checked'),
         'maturityLevels': $('input[name=maturityLevels]').is(':checked'),
+        'experimentalBranches': $('input[name=experimentalBranches]').is(':checked'),
+        'releaseBranches': $('input[name=releaseBranches]').is(':checked'),
     }
 }
 
@@ -63,6 +65,10 @@ var drawChart = function(valueObj) {
         chart.nodeArrows(valueObj.nodeArrows)
     if(chart['maturityLevels'] != undefined) 
         chart.maturityLevels(valueObj.maturityLevels)
+    if(chart['experimentalBranches'] != undefined) 
+        chart.experimentalBranches(valueObj.experimentalBranches)
+    if(chart['releaseBranches'] != undefined) 
+        chart.releaseBranches(valueObj.releaseBranches)
     if(chart['parentDOMElement'] != undefined) 
         chart.parentDOMElement('#charts')
     var chartId = 'visualization';
@@ -208,6 +214,8 @@ $(document).ready( function() {
     $('input[name=useShapes]').on('change', updateGraph)
     $('input[name=nodeArrows]').on('change', updateGraph)
     $('input[name=maturityLevels]').on('change', updateGraph)
+    $('input[name=experimentalBranches]').on('change', updateGraph)
+    $('input[name=releaseBranches]').on('change', updateGraph)
     
     selectChartType();
 });

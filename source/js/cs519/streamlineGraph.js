@@ -124,6 +124,8 @@ function streamlineGraph() {
         useShapes = true,
         nodeArrows = true,
         maturityLevels = true,
+        experimentalBranches = true,
+        releaseBranches = true,
         tagTextMargin = 10,
         arrowSize = 10;
 
@@ -186,8 +188,8 @@ function streamlineGraph() {
         var options = {
             'snapshotOnSeparateLevel':      snapshotOnSeparateLevel,
             'maturityLevels':               maturityLevels,
-            'numberOfExperimentalBranches':   2,
-            'numberOfReleaseBranches':        2,
+            'numberOfExperimentalBranches':   (experimentalBranches ? 2 : 0),
+            'numberOfReleaseBranches':        (releaseBranches ? 2 : 0),
         }
         var c = getLevelsConfiguration(options);
         console.log(c)
@@ -201,20 +203,26 @@ function streamlineGraph() {
                 .style('visibility', 'visible')
             svg.selectAll('.maturityLevelShape')
                 .style('visibility', 'visible')
-            
             var maturityLevelsList = [
-                {'name': 'DEV', 'level': c.MAINLINE_DEV_LEVEL, color: '#edf8e9'}, 
-                {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3'},
-                {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476'},
-                {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3'},
-                {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476'}, 
-                {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354'}, 
-                {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c'} 
+                {'name': 'DEV', 'level': c.MAINLINE_DEV_LEVEL, color: '#edf8e9', class: 'mainlineMaturityLevel'}, 
+                {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3', class: 'mainlineMaturityLevel'},
+                {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476', class: 'mainlineMaturityLevel'},
+                {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3', class: 'releaseMaturityLevel'},
+                {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476', class: 'releaseMaturityLevel'}, 
+                {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354', class: 'releaseMaturityLevel'}, 
+                {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c', class: 'releaseMaturityLevel'} 
             ]
-            
+           
+            if(!releaseBranches) {
+                svg.selectAll('.releaseMaturityLevel')
+                    .style('visibility', 'hidden')
+            } else {
+                svg.selectAll('.releaseMaturityLevel')
+                    .style('visibility', 'visible')
+            }
             svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
                 .append('rect')
-                .attr("class", "maturityLevelShape")
+                .attr("class", function(d) { return "maturityLevelShape " + d.class } )
                 .attr("width", width - xLeftMargin - xRightMargin)
                 .attr("height", levelHeight)
                 .attr('x', xLeftMargin)
@@ -228,6 +236,8 @@ function streamlineGraph() {
                 .attr('y', function(d) {
                     return d.level*levelHeight - levelHeight*0.5 + yTopMargin ;
                 })
+            svg.selectAll('.maturityLevelShape').data(maturityLevelsList).exit()
+                
             svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).enter()
                 .append('text')
                 .text(function(d) {return d.name} )
@@ -246,6 +256,8 @@ function streamlineGraph() {
                 .attr("y", function(d) {
                     return ( d.level*levelHeight + yTopMargin + 3 );
                 })
+            
+            svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).exit()
         }
         
         var branchConnectorNodes = [
@@ -414,7 +426,7 @@ function streamlineGraph() {
                 .style("fill", '#eee')
                 .style("stroke", 'black')
                 .attr("cx", function(d) {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr('cy', function(d) {
                     return ( 0 );
@@ -424,7 +436,7 @@ function streamlineGraph() {
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
                 .attr("x", function(d) {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr("y", function(d) {
                     return ( 3 );
@@ -436,7 +448,7 @@ function streamlineGraph() {
                 .style("fill", '#eee')
                 .style("stroke", 'black')
                 .attr("cx", function() {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr('cy', function() {
                     return ( 0 );
@@ -446,7 +458,7 @@ function streamlineGraph() {
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
                 .attr("x", function(d) {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr("y", function(d) {
                     return ( 3 );
@@ -458,7 +470,7 @@ function streamlineGraph() {
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
                 .attr("x", function() {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr("y", function() {
                     return ( 3 );
@@ -468,7 +480,7 @@ function streamlineGraph() {
                 .attr("class", "branchVersion")
                 .attr("text-anchor", "middle")
                 .attr("x", function() {
-                    return (tagsDistance/2);
+                    return (tagsDistance);
                 })
                 .attr("y", function() {
                     return ( 3 );
@@ -482,14 +494,14 @@ function streamlineGraph() {
             .attr("class", "branchText")
             .attr("text-anchor", "middle")
             .attr("x", function(d) {
-                return ( arrowNodes[d.t].x + tagsDistance/2 );
+                return ( arrowNodes[d.t].x + tagsDistance*0.99 );
             })
             .attr("y", function(d) {
                 return ( arrowNodes[d.t].y + 22 );
             })
         branchText.transition().duration(1000).ease("quad")  
             .attr("x", function(d) {
-                return ( arrowNodes[d.t].x + tagsDistance/2 );
+                return ( arrowNodes[d.t].x + tagsDistance*0.99 );
             })
             .attr("y", function(d) {
                 return ( arrowNodes[d.t].y + 22 );
@@ -544,7 +556,6 @@ function streamlineGraph() {
                     return ( 3 );
                 })
         } else {
-            
             tagGroupEnter.append("text")
                 .text(function(d) { return d.version } )
                 .attr("class", "tagVersion")
@@ -798,6 +809,20 @@ function streamlineGraph() {
             return maturityLevels;
         maturityLevels = _;
         return maturityLevels;
+    };
+    
+    chart.releaseBranches  = function(_) {
+        if (!arguments.length)
+            return releaseBranches;
+        releaseBranches = _;
+        return releaseBranches;
+    };
+    
+    chart.experimentalBranches = function(_) {
+        if (!arguments.length)
+            return experimentalBranches;
+        experimentalBranches = _;
+        return experimentalBranches;
     };
     
     return chart;
