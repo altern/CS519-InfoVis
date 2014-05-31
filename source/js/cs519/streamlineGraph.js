@@ -190,6 +190,7 @@ function streamlineGraph() {
             'numberOfReleaseBranches':        2,
         }
         var c = getLevelsConfiguration(options);
+        console.log(c)
         if(!snapshotOnSeparateLevel || !maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
@@ -276,6 +277,7 @@ function streamlineGraph() {
             {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
             {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.RELEASE_BRANCH_PROD_LEVELS[dec(1)] + yTopMargin   },
             {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(2)] + yTopMargin   },
         ]
         
         var arrowNodes = [ 
@@ -311,6 +313,10 @@ function streamlineGraph() {
             {s:28, t:29, version: "1.1"},
             {s:30, t:31, version: "x.12"},
             {s:32, t:33, version: "1.2"},
+            {s:34, t:35, version: "x.13"},
+            {s:36, t:37, version: "1.3"},
+            {s:38, t:39, version: "x.14"},
+            {s:40, t:41, version: "2.1"},
         ]
         var arrows = [ 
             {s:0, t:1, version:"x.x", branchName: "trunk"}, 
