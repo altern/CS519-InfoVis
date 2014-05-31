@@ -1,3 +1,100 @@
+function dec(a) {
+    return --a;
+}
+
+function getLevelsConfiguration(paramsObj) {
+    if(!paramsObj) {
+        var paramsObj = {
+            snapshotOnSeparateLevel:        false,
+            maturityLevels:                 false,
+            numberOfExperimentalBranches:   0,
+            numberOfReleaseBranches:        0,
+        }
+    }
+    var resultObj = {
+        ZERO_TAG_LEVEL:                 0,
+        MAINLINE_LEVEL:                 0,
+        MAINLINE_DEV_LEVEL:             0,
+        MAINLINE_TEST_LEVEL:            0,
+        MAINLINE_USER_LEVEL:            0,
+        EXPERIMENTAL_BRANCH_LEVELS:     [],
+        EXPERIMENTAL_BRANCH_DEV_LEVELS: [],
+        EXPERIMENTAL_BRANCH_TEST_LEVELS:[],
+        EXPERIMENTAL_BRANCH_USER_LEVELS:[],
+        RELEASE_BRANCH_LEVELS:          [],
+        RELEASE_BRANCH_TEST_LEVELS:     [],
+        RELEASE_BRANCH_USER_LEVELS:     [],
+        RELEASE_BRANCH_RC_LEVELS:       [],
+        RELEASE_BRANCH_PROD_LEVELS:     [],
+    }
+    
+    var levelsCounter = 0;
+    
+    if(!paramsObj.snapshotOnSeparateLevel && !paramsObj.maturityLevels) {
+        while (paramsObj.numberOfExperimentalBranches-- > 0) {
+            levelsCounter++;
+            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(levelsCounter)
+        }
+        while (paramsObj.numberOfReleaseBranches-- > 0) {
+            levelsCounter++;
+            resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        }
+    } else if(!paramsObj.maturityLevels) {
+        resultObj.ZERO_TAG_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
+        resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
+        resultObj.MAINLINE_USER_LEVEL = levelsCounter;
+        while (paramsObj.numberOfExperimentalBranches-- > 0) {
+            levelsCounter++;
+            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
+            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
+            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
+        }
+        while (paramsObj.numberOfReleaseBranches-- > 0) {
+            resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+        }
+        resultObj.RELEASE_BRANCH_TEST_LEVELS.push(++levelsCounter)
+        resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+        resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+        resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+    } else {
+        resultObj.ZERO_TAG_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_DEV_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_TEST_LEVEL = levelsCounter++;
+        resultObj.MAINLINE_USER_LEVEL = levelsCounter++;
+        while (paramsObj.numberOfExperimentalBranches-- > 0) {
+            levelsCounter++;
+            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
+            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(resultObj.MAINLINE_TEST_LEVEL)
+            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(resultObj.MAINLINE_USER_LEVEL)
+        }
+        var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
+        while (paramsObj.numberOfReleaseBranches-- > 0) {
+            resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+        }
+        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+        while (paramsObj.numberOfReleaseBranches-- > 0) {
+            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(++levelsCounter)
+            resultObj.RELEASE_BRANCH_USER_LEVELS.push(++levelsCounter)
+            resultObj.RELEASE_BRANCH_RC_LEVELS.push(++levelsCounter)
+            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(++levelsCounter)
+        }
+    }
+    return resultObj;
+}
+
+
 function streamlineGraph() {
     
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -67,95 +164,100 @@ function streamlineGraph() {
         var tags = Array.apply(null, {length: numberOfTags}).map(Number.call, Number)
         var numberOfLevels = 5;
         var yTopMargin = tagTextMargin;
-//        var levelHeight = ( height - yTopMargin ) / numberOfLevels;
         var xLeftMargin = tagTextMargin;
         if(maturityLevels) {
             xLeftMargin += 50;
         }
         var xRightMargin = 100;
         
-//        var tagsDistance = ( width - xLeftMargin - xRightMargin ) / numberOfTags; 
-        
+        var options = {
+            'snapshotOnSeparateLevel':      snapshotOnSeparateLevel,
+            'maturityLevels':               maturityLevels,
+            'numberOfExperimentalBranches':   2,
+            'numberOfReleaseBranches':        2,
+        }
+        var c = getLevelsConfiguration(options);
         if(!snapshotOnSeparateLevel && !maturityLevels) {
-            var ZERO_TAG_LEVEL = 0;
-            var MAINLINE_LEVEL = 0;
-            var MAINLINE_DEV_LEVEL = 0;
-            var MAINLINE_TEST_LEVEL = 0;
-            var MAINLINE_USER_LEVEL = 0;
-            var EXPERIMENTAL_BRANCH_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_LEVEL2 = 3;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 3;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 3;
-            var RELEASE_BRANCH_LEVEL1 = 4;
-            var RELEASE_BRANCH_LEVEL2 = 5;
-            var RELEASE_BRANCH_TEST_LEVEL1 = 6;
-            var RELEASE_BRANCH_USER_LEVEL1 = 6;
-            var RELEASE_BRANCH_RC_LEVEL1 = 6;
-            var RELEASE_BRANCH_PROD_LEVEL1 = 6;
-            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
-            var RELEASE_BRANCH_USER_LEVEL2 = 6;
-            var RELEASE_BRANCH_RC_LEVEL2 = 6;
-            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
+//            var ZERO_TAG_LEVEL = 0;
+//            var MAINLINE_LEVEL = 0;
+//            var MAINLINE_DEV_LEVEL = 0;
+//            var MAINLINE_TEST_LEVEL = 0;
+//            var MAINLINE_USER_LEVEL = 0;
+//            var EXPERIMENTAL_BRANCH_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_LEVEL2 = 3;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 3;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 3;
+//            var RELEASE_BRANCH_LEVEL1 = 4;
+//            var RELEASE_BRANCH_LEVEL2 = 5;
+//            var RELEASE_BRANCH_TEST_LEVEL1 = 6;
+//            var RELEASE_BRANCH_USER_LEVEL1 = 6;
+//            var RELEASE_BRANCH_RC_LEVEL1 = 6;
+//            var RELEASE_BRANCH_PROD_LEVEL1 = 6;
+//            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
+//            var RELEASE_BRANCH_USER_LEVEL2 = 6;
+//            var RELEASE_BRANCH_RC_LEVEL2 = 6;
+//            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
+            
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
             svg.selectAll('.maturityLevelShape')
                 .style('visibility', 'hidden')
         } else if(!maturityLevels) {
-            var ZERO_TAG_LEVEL = 0;
-            var MAINLINE_LEVEL = 1;
-            var MAINLINE_DEV_LEVEL = 2;
-            var MAINLINE_TEST_LEVEL = 2;
-            var MAINLINE_USER_LEVEL = 2;
-            var EXPERIMENTAL_BRANCH_LEVEL1 = 3;
-            var EXPERIMENTAL_BRANCH_LEVEL2 = 4;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 2;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 2;
-            var RELEASE_BRANCH_LEVEL1 = 5;
-            var RELEASE_BRANCH_LEVEL2 = 6;
-            var RELEASE_BRANCH_TEST_LEVEL1 = 5;
-            var RELEASE_BRANCH_USER_LEVEL1 = 5;
-            var RELEASE_BRANCH_RC_LEVEL1 = 5;
-            var RELEASE_BRANCH_PROD_LEVEL1 = 5;
-            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
-            var RELEASE_BRANCH_USER_LEVEL2 = 6;
-            var RELEASE_BRANCH_RC_LEVEL2 = 6;
-            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
+//            var ZERO_TAG_LEVEL = 0;
+//            var MAINLINE_LEVEL = 1;
+//            var MAINLINE_DEV_LEVEL = 2;
+//            var MAINLINE_TEST_LEVEL = 2;
+//            var MAINLINE_USER_LEVEL = 2;
+//            var EXPERIMENTAL_BRANCH_LEVEL1 = 3;
+//            var EXPERIMENTAL_BRANCH_LEVEL2 = 4;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 2;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 2;
+//            var RELEASE_BRANCH_LEVEL1 = 5;
+//            var RELEASE_BRANCH_LEVEL2 = 6;
+//            var RELEASE_BRANCH_TEST_LEVEL1 = 5;
+//            var RELEASE_BRANCH_USER_LEVEL1 = 5;
+//            var RELEASE_BRANCH_RC_LEVEL1 = 5;
+//            var RELEASE_BRANCH_PROD_LEVEL1 = 5;
+//            var RELEASE_BRANCH_TEST_LEVEL2 = 6;
+//            var RELEASE_BRANCH_USER_LEVEL2 = 6;
+//            var RELEASE_BRANCH_RC_LEVEL2 = 6;
+//            var RELEASE_BRANCH_PROD_LEVEL2 = 6;
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
             svg.selectAll('.maturityLevelShape')
                 .style('visibility', 'hidden')
         } else {
-            var ZERO_TAG_LEVEL = 0;
-            var MAINLINE_LEVEL = 1;
-            var MAINLINE_DEV_LEVEL = 2;
-            var MAINLINE_TEST_LEVEL = 3;
-            var MAINLINE_USER_LEVEL = 4;
-            var EXPERIMENTAL_BRANCH_LEVEL1 = 5;
-            var EXPERIMENTAL_BRANCH_LEVEL2 = 6;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 3;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 4;
-            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
-            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
-            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 4;
-            var RELEASE_BRANCH_LEVEL1 = 7;
-            var RELEASE_BRANCH_LEVEL2 = 8;
-            var RELEASE_BRANCH_TEST_LEVEL1 = 9;
-            var RELEASE_BRANCH_USER_LEVEL1 = 10;
-            var RELEASE_BRANCH_RC_LEVEL1 = 11;
-            var RELEASE_BRANCH_PROD_LEVEL1 = 12;
-            var RELEASE_BRANCH_TEST_LEVEL2 = 9;
-            var RELEASE_BRANCH_USER_LEVEL2 = 10;
-            var RELEASE_BRANCH_RC_LEVEL2 = 11;
-            var RELEASE_BRANCH_PROD_LEVEL2 = 12;
+//            var ZERO_TAG_LEVEL = 0;
+//            var MAINLINE_LEVEL = 1;
+//            var MAINLINE_DEV_LEVEL = 2;
+//            var MAINLINE_TEST_LEVEL = 3;
+//            var MAINLINE_USER_LEVEL = 4;
+//            var EXPERIMENTAL_BRANCH_LEVEL1 = 5;
+//            var EXPERIMENTAL_BRANCH_LEVEL2 = 6;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL1 = 2;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL1 = 3;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL1 = 4;
+//            var EXPERIMENTAL_BRANCH_DEV_LEVEL2 = 2;
+//            var EXPERIMENTAL_BRANCH_TEST_LEVEL2 = 3;
+//            var EXPERIMENTAL_BRANCH_USER_LEVEL2 = 4;
+//            var RELEASE_BRANCH_LEVEL1 = 7;
+//            var RELEASE_BRANCH_LEVEL2 = 8;
+//            var RELEASE_BRANCH_TEST_LEVEL1 = 9;
+//            var RELEASE_BRANCH_USER_LEVEL1 = 10;
+//            var RELEASE_BRANCH_RC_LEVEL1 = 11;
+//            var RELEASE_BRANCH_PROD_LEVEL1 = 12;
+//            var RELEASE_BRANCH_TEST_LEVEL2 = 9;
+//            var RELEASE_BRANCH_USER_LEVEL2 = 10;
+//            var RELEASE_BRANCH_RC_LEVEL2 = 11;
+//            var RELEASE_BRANCH_PROD_LEVEL2 = 12;
             
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'visible')
@@ -163,13 +265,13 @@ function streamlineGraph() {
                 .style('visibility', 'visible')
             
             var maturityLevelsList = [
-                {'name': 'DEV', 'level': MAINLINE_DEV_LEVEL, color: '#edf8e9'}, 
-                {'name': 'TEST', 'level': MAINLINE_TEST_LEVEL, color: '#bae4b3'},
-                {'name': 'USER', 'level': MAINLINE_USER_LEVEL, color: '#74c476'},
-                {'name': 'TEST', 'level': RELEASE_BRANCH_TEST_LEVEL1, color: '#bae4b3'},
-                {'name': 'USER', 'level': RELEASE_BRANCH_USER_LEVEL1, color: '#74c476'}, 
-                {'name': 'RC', 'level': RELEASE_BRANCH_RC_LEVEL1, color: '#31a354'}, 
-                {'name': 'PROD', 'level': RELEASE_BRANCH_PROD_LEVEL1, color: '#006d2c'} 
+                {'name': 'DEV', 'level': c.MAINLINE_DEV_LEVEL, color: '#edf8e9'}, 
+                {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3'},
+                {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476'},
+                {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3'},
+                {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476'}, 
+                {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354'}, 
+                {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c'} 
             ]
             
             svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
@@ -209,42 +311,43 @@ function streamlineGraph() {
         }
         
         var branchConnectorNodes = [
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*5, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*7, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
         ] 
 
         var tagConnectorNodes = [ 
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*ZERO_TAG_LEVEL + yTopMargin },
-            {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*4, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL1   + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*6, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*EXPERIMENTAL_BRANCH_USER_LEVEL1   + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*MAINLINE_USER_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*EXPERIMENTAL_BRANCH_DEV_LEVEL2  + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*11, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*RELEASE_BRANCH_TEST_LEVEL1 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL2 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*13, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*13, y:levelHeight*RELEASE_BRANCH_USER_LEVEL1 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*14, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*14, y:levelHeight*EXPERIMENTAL_BRANCH_DEV_LEVEL2 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*15, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*15, y:levelHeight*RELEASE_BRANCH_RC_LEVEL1 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*16, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*16, y:levelHeight*EXPERIMENTAL_BRANCH_TEST_LEVEL2 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*17, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*RELEASE_BRANCH_PROD_LEVEL1 + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*18, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*EXPERIMENTAL_BRANCH_USER_LEVEL2 + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin },
+            {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.MAINLINE_USER_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)]  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]  + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_TEST_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_USER_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_PROD_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
         ]
         
         var arrowNodes = [ 
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*MAINLINE_LEVEL + yTopMargin},
-            {x:xLeftMargin + tagsDistance*3, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL1 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*5, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*RELEASE_BRANCH_LEVEL1 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*7, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*RELEASE_BRANCH_LEVEL2 + yTopMargin},
-            {x:xLeftMargin + tagsDistance*9, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin}, {x:width - xRightMargin, y:levelHeight*EXPERIMENTAL_BRANCH_LEVEL2 + yTopMargin},
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
         ];
+
         var branchConnectors = [
             {s:0, t:1},
             {s:2, t:3},
@@ -266,9 +369,9 @@ function streamlineGraph() {
             {s:20, t:21, version: "x.10"},
             {s:22, t:23, version: "1.0"},
             {s:24, t:25, version: "x.11"},
-            {s:26, t:27, version: "x.12"},
-            {s:28, t:29, version: "x.13"},
-            {s:30, t:31, version: "x.14"},
+            {s:26, t:27, version: "1.1"},
+            {s:28, t:29, version: "x.12"},
+            {s:30, t:31, version: "1.2"},
         ]
         var arrows = [ 
             {s:0, t:1, version:"x.x", branchName: "trunk"}, 
