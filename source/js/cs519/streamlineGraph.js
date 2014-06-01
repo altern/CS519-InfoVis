@@ -204,7 +204,7 @@ function streamlineGraph() {
         }
         var c = getLevelsConfiguration(options);
         console.log(c)
-        if(!snapshotOnSeparateLevel || !maturityLevels) {
+        if(!maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
                 .style('visibility', 'hidden')
             svg.selectAll('.maturityLevelShape')
