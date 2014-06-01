@@ -38,6 +38,11 @@ function getLevelsConfiguration(paramsObj) {
             resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(levelsCounter)
             resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(levelsCounter)
         }
+        resultObj.ZERO_TAG_LEVEL = levelsCounter;
+        resultObj.MAINLINE_LEVEL = ++levelsCounter;
+        resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
+        resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
+        resultObj.MAINLINE_USER_LEVEL = levelsCounter;
         while (paramsObj.numberOfReleaseBranches-- > 0) {
             levelsCounter++;
             resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
@@ -47,18 +52,19 @@ function getLevelsConfiguration(paramsObj) {
             resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
         }
     } else if(!paramsObj.maturityLevels) {
+        var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
+        while (paramsObj.numberOfExperimentalBranches-- > 0) {
+            levelsCounter++;
+            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + 2)
+            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + 2)
+            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + 2)
+        }
         resultObj.ZERO_TAG_LEVEL = levelsCounter++;
         resultObj.MAINLINE_LEVEL = levelsCounter++;
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
-        while (paramsObj.numberOfExperimentalBranches-- > 0) {
-            levelsCounter++;
-            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
-            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
-            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
-        }
         var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
         while (paramsObj.numberOfReleaseBranches-- > 0) {
             resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
@@ -72,24 +78,24 @@ function getLevelsConfiguration(paramsObj) {
             resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
         }
     } else {
+        var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
+        while (paramsObj.numberOfExperimentalBranches-- > 0) {
+            levelsCounter++;
+            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + 2)
+            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + 3)
+            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + 4)
+        }
         resultObj.ZERO_TAG_LEVEL = levelsCounter++;
         resultObj.MAINLINE_LEVEL = levelsCounter++;
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter++;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter++;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter++;
-        while (paramsObj.numberOfExperimentalBranches-- > 0) {
-            levelsCounter++;
-            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(resultObj.MAINLINE_DEV_LEVEL)
-            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(resultObj.MAINLINE_TEST_LEVEL)
-            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(resultObj.MAINLINE_USER_LEVEL)
-        }
         var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
         while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+            resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter++)
         }
         paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        ++levelsCounter
         while (paramsObj.numberOfReleaseBranches-- > 0) {
             resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
         }
