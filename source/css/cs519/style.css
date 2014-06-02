@@ -104,3 +104,6 @@ marker#tagArrow {
     font-family: sans-serif;
     font-size: 11px;
 }
+.tagVersion, .branchVersion {
+    font-size: 0.7em;
+}
