@@ -10,6 +10,173 @@ function dec(a) {
     return --a;
 }
 
+function generateData(p) {
+    
+    if(!p) {
+        var p = {
+            snapshotOnSeparateLevel:        false,
+            maturityLevels:                 false,
+            zeroTag:                        false,
+            experimentalBranches:           [],
+            releaseBranches:                [],
+            xRightMargin:                   0,
+            xLeftMargin:                    0,
+            tagTextMargin:                  0,
+            tagsDistance:                   0,
+            levelHeight:                    0,
+            yTopMargin:                     0,
+            width:                          0,
+        }
+    }
+    var displayExperimentalBranches = (p.experimentalBranches.length > 0)
+    var displayReleaseBranches = (p.releaseBranches.length > 0)
+    var numberOfExperimentalBranches = (p.experimentalBranches.length )
+    var numberOfReleaseBranches = (p.releaseBranches.length )
+    p.numberOfExperimentalBranches = numberOfExperimentalBranches
+    p.numberOfReleaseBranches = numberOfReleaseBranches
+    
+    var c = getLevelsConfiguration(p)
+    
+    var snapshotOnSeparateLevel = p.snapshotOnSeparateLevel
+    var maturityLevels = p.maturityLevels
+    var zeroTag = p.zeroTag
+    var xRightMargin = p.xRightMargin
+    var xLeftMargin = p.xLeftMargin
+    var tagTextMargin = p.tagTextMargin
+    var tagsDistance = p.tagsDistance
+    var levelHeight = p.levelHeight
+    var yTopMargin = p.yTopMargin
+    var width = p.width
+
+    var branchConnectors = []
+    var branchConnectorNodes = []
+    var tagConnectors = []
+    var tagConnectorNodes = []
+    var branchArrows = []
+    var branchArrowNodes = []
+
+    if(displayExperimentalBranches) {
+        tagConnectors = tagConnectors.concat([
+            {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "x.3",    class: 'experimentalTag'},
+            {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.4",    class: 'experimentalTag'},
+            {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "x.6",    class: 'experimentalTag'},
+            {s:firstCol(3, tagConnectorNodes.length), t:secondCol(3, tagConnectorNodes.length), version: "x.9",    class: 'experimentalTag'},
+            {s:firstCol(4, tagConnectorNodes.length), t:secondCol(4, tagConnectorNodes.length), version: "x.10",   class: 'experimentalTag'},
+            {s:firstCol(5, tagConnectorNodes.length), t:secondCol(5, tagConnectorNodes.length), version: "x.11",   class: 'experimentalTag'},
+            {s:firstCol(6, tagConnectorNodes.length), t:secondCol(6, tagConnectorNodes.length), version: "x.12",   class: 'experimentalTag'},
+            {s:firstCol(7, tagConnectorNodes.length), t:secondCol(7, tagConnectorNodes.length), version: "x.13",   class: 'experimentalTag'},
+            {s:firstCol(8, tagConnectorNodes.length), t:secondCol(8, tagConnectorNodes.length), version: "x.14",   class: 'experimentalTag'},
+        ])
+        tagConnectorNodes = tagConnectorNodes.concat([ 
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]   + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.MAINLINE_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL  + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
+        ])
+        branchArrows = branchArrows.concat([ 
+            {s:firstCol(0, branchArrowNodes.length), t:secondCol(0, branchArrowNodes.length), version:"x.x", branchName: "branch1", class: 'experimentalBranch'}, 
+            {s:firstCol(1, branchArrowNodes.length), t:secondCol(1, branchArrowNodes.length), version:"x.x", branchName: "branch2", class: 'experimentalBranch'},
+        ])
+        branchArrowNodes = branchArrowNodes.concat([ 
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
+        ])
+        branchConnectors = branchConnectors.concat([
+            {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'experimentalBranch'},
+            {s:firstCol(1, branchConnectorNodes.length), t:secondCol(1, branchConnectorNodes.length), class: 'experimentalBranch'},
+        ])
+        branchConnectorNodes = branchConnectorNodes.concat([
+            {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
+        ])
+    }
+    if(zeroTag) {
+        tagConnectors = tagConnectors.concat([
+            {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "0.x.x",  class: 'zeroTag'},
+        ])
+        tagConnectorNodes = tagConnectorNodes.concat([
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin },
+        ])
+        branchConnectors = branchConnectors.concat([
+            {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'mainline'},
+        ])
+        branchConnectorNodes = branchConnectorNodes.concat([
+            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
+        ])
+    }
+
+    tagConnectors = tagConnectors.concat([
+        {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "x.1",    class: 'mainlineTag'},
+        {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.2",    class: 'mainlineTag'},
+        {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "x.8",    class: 'mainlineTag'},
+    ])
+    tagConnectorNodes = tagConnectorNodes.concat([
+        {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin   },
+        {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
+        {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
+    ])
+    branchArrows = branchArrows.concat([ 
+        {s:firstCol(0, branchArrowNodes.length), t:secondCol(0, branchArrowNodes.length), version:"x.x", branchName: "trunk", class: 'mainline'}, 
+    ])
+    branchArrowNodes = branchArrowNodes.concat([ 
+        {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
+    ])
+
+    if(displayReleaseBranches) {
+        tagConnectors = tagConnectors.concat([
+            {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "x.5",    class: 'releaseTag'},
+            {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.7",    class: 'releaseTag'},
+            {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "2.0",    class: 'releaseTag'},
+            {s:firstCol(3, tagConnectorNodes.length), t:secondCol(3, tagConnectorNodes.length), version: "1.0",    class: 'releaseTag'},
+            {s:firstCol(4, tagConnectorNodes.length), t:secondCol(4, tagConnectorNodes.length), version: "1.1",    class: 'releaseTag'},
+            {s:firstCol(5, tagConnectorNodes.length), t:secondCol(5, tagConnectorNodes.length), version: "1.2",    class: 'releaseTag'},
+            {s:firstCol(6, tagConnectorNodes.length), t:secondCol(6, tagConnectorNodes.length), version: "1.3",    class: 'releaseTag'},
+            {s:firstCol(7, tagConnectorNodes.length), t:secondCol(7, tagConnectorNodes.length), version: "2.1",    class: 'releaseTag'},
+        ])
+        tagConnectorNodes = tagConnectorNodes.concat([
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.RELEASE_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_TEST_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_USER_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_PROD_LEVELS[dec(1)] + yTopMargin   },
+            {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(2)] + yTopMargin   },
+        ])
+        branchArrows = branchArrows.concat([ 
+            {s:firstCol(0, branchArrowNodes.length), t:secondCol(0, branchArrowNodes.length), version:"1.x", branchName: "release1", class: 'releaseBranch'}, 
+            {s:firstCol(1, branchArrowNodes.length), t:secondCol(1, branchArrowNodes.length), version:"2.x", branchName: "release2", class: 'releaseBranch'}, 
+        ])
+        branchArrowNodes = branchArrowNodes.concat([ 
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
+        ])
+        branchConnectors = branchConnectors.concat([
+            {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'releaseBranch'},
+            {s:firstCol(1, branchConnectorNodes.length), t:secondCol(1, branchConnectorNodes.length), class: 'releaseBranch'},
+        ])
+        branchConnectorNodes = branchConnectorNodes.concat([
+            {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
+            {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
+        ])
+    }
+    
+    var resultObj = {
+        'branchConnectors'        :   branchConnectors,   
+        'branchConnectorNodes'    :   branchConnectorNodes,
+        'tagConnectors'           :   tagConnectors,      
+        'tagConnectorNodes'       :   tagConnectorNodes,
+        'branchArrows'            :   branchArrows,       
+        'branchArrowNodes'        :   branchArrowNodes   
+    }
+    return resultObj
+}
+
 function getLevelsConfiguration(paramsObj) {
     if(!paramsObj) {
         var paramsObj = {
@@ -162,6 +329,7 @@ function streamlineGraph() {
         maturityLevels = true,
         experimentalBranches = true,
         releaseBranches = true,
+        zeroTag = true,
         tagTextMargin = 10,
         arrowSize = 10;
 
@@ -226,6 +394,16 @@ function streamlineGraph() {
             'maturityLevels':               maturityLevels,
             'numberOfExperimentalBranches':   (experimentalBranches ? 2 : 0),
             'numberOfReleaseBranches':        (releaseBranches ? 2 : 0),
+            'zeroTag' : zeroTag,
+            'xRightMargin' : xRightMargin,
+            'xLeftMargin' : xLeftMargin,
+            'tagTextMargin' : tagTextMargin,
+            'tagsDistance' : tagsDistance,
+            'levelHeight' : levelHeight,
+            'yTopMargin' : yTopMargin,
+            'width' : width,
+            'experimentalBranches':           [0, 0],
+            'releaseBranches':                [0, 0],
         }
         var c = getLevelsConfiguration(options);
         
@@ -311,135 +489,28 @@ function streamlineGraph() {
             svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).exit()
         }
         
-        var branchConnectors = []
-        var branchConnectorNodes = []
-        var tagConnectors = []
-        var tagConnectorNodes = []
-        var arrows = []
-        var arrowNodes = []
+        var data = generateData(options)
+        var branchConnectors = data.branchConnectors   
+        var branchConnectorNodes = data.branchConnectorNodes
+        var tagConnectors = data.tagConnectors      
+        var tagConnectorNodes = data.tagConnectorNodes
+        var branchArrows = data.branchArrows       
+        var branchArrowNodes = data.branchArrowNodes   
         
-        if(experimentalBranches) {
-            tagConnectors = tagConnectors.concat([
-                {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "x.3",    class: 'experimentalTag'},
-                {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.4",    class: 'experimentalTag'},
-                {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "x.6",    class: 'experimentalTag'},
-                {s:firstCol(3, tagConnectorNodes.length), t:secondCol(3, tagConnectorNodes.length), version: "x.9",    class: 'experimentalTag'},
-                {s:firstCol(4, tagConnectorNodes.length), t:secondCol(4, tagConnectorNodes.length), version: "x.10",   class: 'experimentalTag'},
-                {s:firstCol(5, tagConnectorNodes.length), t:secondCol(5, tagConnectorNodes.length), version: "x.11",   class: 'experimentalTag'},
-                {s:firstCol(6, tagConnectorNodes.length), t:secondCol(6, tagConnectorNodes.length), version: "x.12",   class: 'experimentalTag'},
-                {s:firstCol(7, tagConnectorNodes.length), t:secondCol(7, tagConnectorNodes.length), version: "x.13",   class: 'experimentalTag'},
-                {s:firstCol(8, tagConnectorNodes.length), t:secondCol(8, tagConnectorNodes.length), version: "x.14",   class: 'experimentalTag'},
-            ])
-            tagConnectorNodes = tagConnectorNodes.concat([ 
-                {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*4, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]   + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)]   + yTopMargin }, {x:xLeftMargin + tagsDistance*6, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]   + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.MAINLINE_LEVEL  + yTopMargin }, {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL  + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*12, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*14, y:levelHeight*c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*16, y:levelHeight*c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*18, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*20, y:levelHeight*c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
-            ])
-            arrows = arrows.concat([ 
-                {s:firstCol(0, arrowNodes.length), t:secondCol(0, arrowNodes.length), version:"x.x", branchName: "branch1", class: 'experimentalBranch'}, 
-                {s:firstCol(1, arrowNodes.length), t:secondCol(1, arrowNodes.length), version:"x.x", branchName: "branch2", class: 'experimentalBranch'},
-            ])
-            arrowNodes = arrowNodes.concat([ 
-                {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
-                {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
-            ])
-            branchConnectors = branchConnectors.concat([
-                {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'experimentalBranch'},
-                {s:firstCol(1, branchConnectorNodes.length), t:secondCol(1, branchConnectorNodes.length), class: 'experimentalBranch'},
-            ])
-            branchConnectorNodes = branchConnectorNodes.concat([
-                {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*3, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)] + yTopMargin},
-                {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*10, y:levelHeight*c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)] + yTopMargin},
-            ])
-        }
-        tagConnectors = tagConnectors.concat([
-            {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "0.x.x",  class: 'zeroTag'},
-            {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.1",    class: 'mainlineTag'},
-            {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "x.2",    class: 'mainlineTag'},
-            {s:firstCol(3, tagConnectorNodes.length), t:secondCol(3, tagConnectorNodes.length), version: "x.8",    class: 'mainlineTag'},
-        ])
-        tagConnectorNodes = tagConnectorNodes.concat([
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin },
-            {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*1, y:levelHeight*c.MAINLINE_DEV_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*2, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
-            {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*8, y:levelHeight*c.MAINLINE_TEST_LEVEL + yTopMargin   },
-        ])
-        arrows = arrows.concat([ 
-            {s:firstCol(0, arrowNodes.length), t:secondCol(0, arrowNodes.length), version:"x.x", branchName: "trunk", class: 'mainline'}, 
-        ])
-        arrowNodes = arrowNodes.concat([ 
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
-        ])
-        branchConnectors = branchConnectors.concat([
-            {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'mainline'},
-        ])
-        branchConnectorNodes = branchConnectorNodes.concat([
-            {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.ZERO_TAG_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*0, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin},
-        ])
-        if(releaseBranches) {
-            tagConnectors = tagConnectors.concat([
-                {s:firstCol(0, tagConnectorNodes.length), t:secondCol(0, tagConnectorNodes.length), version: "x.5",    class: 'releaseTag'},
-                {s:firstCol(1, tagConnectorNodes.length), t:secondCol(1, tagConnectorNodes.length), version: "x.7",    class: 'releaseTag'},
-                {s:firstCol(2, tagConnectorNodes.length), t:secondCol(2, tagConnectorNodes.length), version: "2.0",    class: 'releaseTag'},
-                {s:firstCol(3, tagConnectorNodes.length), t:secondCol(3, tagConnectorNodes.length), version: "1.0",    class: 'releaseTag'},
-                {s:firstCol(4, tagConnectorNodes.length), t:secondCol(4, tagConnectorNodes.length), version: "1.1",    class: 'releaseTag'},
-                {s:firstCol(5, tagConnectorNodes.length), t:secondCol(5, tagConnectorNodes.length), version: "1.2",    class: 'releaseTag'},
-                {s:firstCol(6, tagConnectorNodes.length), t:secondCol(6, tagConnectorNodes.length), version: "1.3",    class: 'releaseTag'},
-                {s:firstCol(7, tagConnectorNodes.length), t:secondCol(7, tagConnectorNodes.length), version: "2.1",    class: 'releaseTag'},
-            ])
-            tagConnectorNodes = tagConnectorNodes.concat([
-                {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.MAINLINE_LEVEL + yTopMargin }, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*9, y:levelHeight*c.RELEASE_BRANCH_USER_LEVELS[dec(2)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*11, y:levelHeight*c.RELEASE_BRANCH_TEST_LEVELS[dec(1)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*13, y:levelHeight*c.RELEASE_BRANCH_USER_LEVELS[dec(1)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*15, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(1)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin }, {x:xLeftMargin + tagsDistance*17, y:levelHeight*c.RELEASE_BRANCH_PROD_LEVELS[dec(1)] + yTopMargin   },
-                {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin }, {x:xLeftMargin + tagsDistance*19, y:levelHeight*c.RELEASE_BRANCH_RC_LEVELS[dec(2)] + yTopMargin   },
-            ])
-            arrows = arrows.concat([ 
-                {s:firstCol(0, arrowNodes.length), t:secondCol(0, arrowNodes.length), version:"1.x", branchName: "release1", class: 'releaseBranch'}, 
-                {s:firstCol(1, arrowNodes.length), t:secondCol(1, arrowNodes.length), version:"2.x", branchName: "release2", class: 'releaseBranch'}, 
-            ])
-            arrowNodes = arrowNodes.concat([ 
-                {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
-                {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin}, {x:width - xRightMargin, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
-            ])
-            branchConnectors = branchConnectors.concat([
-                {s:firstCol(0, branchConnectorNodes.length), t:secondCol(0, branchConnectorNodes.length), class: 'releaseBranch'},
-                {s:firstCol(1, branchConnectorNodes.length), t:secondCol(1, branchConnectorNodes.length), class: 'releaseBranch'},
-            ])
-            branchConnectorNodes = branchConnectorNodes.concat([
-                {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*5, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(1)] + yTopMargin},
-                {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin + tagTextMargin}, {x:xLeftMargin + tagsDistance*7, y:levelHeight*c.RELEASE_BRANCH_LEVELS[dec(2)] + yTopMargin},
-            ])
-        }
-        console.log({
-            'tagConnectors'     : tagConnectors,
-            'tagConnectorNodes' : tagConnectorNodes,
-            'arrows'            : arrows,
-            'arrowNodes'        : arrowNodes
-        })
-        var arrow = svg.selectAll(".arrow").data(arrows)
-        arrow.enter()
+        var branchArrow = svg.selectAll(".arrow").data(branchArrows)
+        branchArrow.enter()
             .append("line")
             .attr("class", function(d) { return "link arrow " + d.class } )
             .attr("marker-end", "url(#branchArrow)")
-            .attr("x1", function(d) { return arrowNodes[d.s].x; })
-            .attr("x2", function(d) { return arrowNodes[d.t].x; })
-            .attr("y1", function(d) { return arrowNodes[d.s].y; })
-            .attr("y2", function(d) { return arrowNodes[d.t].y; });
-        arrow.transition().duration(1000).ease("quad")
-            .attr("x1", function(d) { return arrowNodes[d.s].x; })
-            .attr("x2", function(d) { return arrowNodes[d.t].x; })
-            .attr("y1", function(d) { return arrowNodes[d.s].y; })
-            .attr("y2", function(d) { return arrowNodes[d.t].y; });
+            .attr("x1", function(d) { return branchArrowNodes[d.s].x; })
+            .attr("x2", function(d) { return branchArrowNodes[d.t].x; })
+            .attr("y1", function(d) { return branchArrowNodes[d.s].y; })
+            .attr("y2", function(d) { return branchArrowNodes[d.t].y; });
+        branchArrow.transition().duration(1000).ease("quad")
+            .attr("x1", function(d) { return branchArrowNodes[d.s].x; })
+            .attr("x2", function(d) { return branchArrowNodes[d.t].x; })
+            .attr("y1", function(d) { return branchArrowNodes[d.s].y; })
+            .attr("y2", function(d) { return branchArrowNodes[d.t].y; });
         
         var tagConnectorEnter = svg.selectAll(".tagConnector").data(tagConnectors).enter()
         var tagConnectorUpdate = svg.selectAll(".tagConnector").data(tagConnectors)
@@ -495,14 +566,14 @@ function streamlineGraph() {
         // ================ BRANCHES ========================
         
         var transformBranch = function(d) { 
-            return "translate (" + arrowNodes[d.t].x + "," + (arrowNodes[d.t].y ) + ")"
+            return "translate (" + branchArrowNodes[d.t].x + "," + (branchArrowNodes[d.t].y ) + ")"
         }
         
-        var branchGroupEnter = svg.selectAll('.branchGroup').data(arrows).enter()
+        var branchGroupEnter = svg.selectAll('.branchGroup').data(branchArrows).enter()
             .append("g")
             .attr('class', function (d) { return 'branchGroup ' + d.class } )
             .attr('transform', transformBranch)
-        var branchGroupUpdate = svg.selectAll('.branchGroup').data(arrows)
+        var branchGroupUpdate = svg.selectAll('.branchGroup').data(branchArrows)
         
         branchGroupUpdate.transition().duration(1000).ease("quad")
             .attr('transform', transformBranch) 
@@ -583,24 +654,24 @@ function streamlineGraph() {
                 })
         }
 
-        var branchText = svg.selectAll(".branchText").data(arrows)
+        var branchText = svg.selectAll(".branchText").data(branchArrows)
         branchText.enter()
             .append("text")
             .text(function(d) { return "(" + d.branchName + ")"; })
             .attr("class", function(d) { return "branchText " + d.class } )
             .attr("text-anchor", "middle")
             .attr("x", function(d) {
-                return ( arrowNodes[d.t].x + tagsDistance*0.99 );
+                return ( branchArrowNodes[d.t].x + tagsDistance*0.99 );
             })
             .attr("y", function(d) {
-                return ( arrowNodes[d.t].y + 22 );
+                return ( branchArrowNodes[d.t].y + 22 );
             })
         branchText.transition().duration(1000).ease("quad")  
             .attr("x", function(d) {
-                return ( arrowNodes[d.t].x + tagsDistance*0.99 );
+                return ( branchArrowNodes[d.t].x + tagsDistance*0.99 );
             })
             .attr("y", function(d) {
-                return ( arrowNodes[d.t].y + 22 );
+                return ( branchArrowNodes[d.t].y + 22 );
             })    
             
         // ================ TAGS ========================
