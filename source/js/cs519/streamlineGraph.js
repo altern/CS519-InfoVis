@@ -62,6 +62,16 @@ function generateData(p) {
     var tagConnectors = [], tagConnectorNodes = []
     var branchArrows = [], branchArrowNodes = []
 
+    var maturityLevelsList = [
+        {'name': 'DEV', 'level': c.MAINLINE_DEV_LEVEL, color: '#edf8e9', class: 'mainlineMaturityLevel'}, 
+        {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3', class: 'mainlineMaturityLevel'},
+        {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476', class: 'mainlineMaturityLevel'},
+        {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3', class: 'releaseMaturityLevel'},
+        {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476', class: 'releaseMaturityLevel'}, 
+        {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354', class: 'releaseMaturityLevel'}, 
+        {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c', class: 'releaseMaturityLevel'} 
+    ]
+        
     var tagConnectorNodesMapping = function(tag, i ) {
         return [
             {
@@ -238,7 +248,8 @@ function generateData(p) {
         'tagConnectors'           :   tagConnectors,      
         'tagConnectorNodes'       :   tagConnectorNodes,
         'branchArrows'            :   branchArrows,       
-        'branchArrowNodes'        :   branchArrowNodes   
+        'branchArrowNodes'        :   branchArrowNodes,   
+        'maturityLevelsList'      :   maturityLevelsList   
     }
     return resultObj
 }
@@ -248,7 +259,9 @@ function getLevelsConfiguration(paramsObj) {
         var paramsObj = {
             snapshotOnSeparateLevel:        false,
             maturityLevels:                 false,
+            displayExperimentalBranches:    false,
             numberOfExperimentalBranches:   0,
+            displayReleaseBranches:         false,
             numberOfReleaseBranches:        0,
         }
     }
@@ -274,103 +287,138 @@ function getLevelsConfiguration(paramsObj) {
     var levelsCounter = 0;
     var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
     var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
+    var displayExperimentalBranches = paramsObj.displayExperimentalBranches;
+    var displayReleaseBranches = paramsObj.displayReleaseBranches;
+    
+    var getExperimentalLevel = function(maturity, experimentalBranchLevelOffset, paramsObj) {
+        var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches
+        var maturityLevels = paramsObj.maturityLevels
+        var displayReleaseBranches = paramsObj.displayReleaseBranches
+        var mainlineMaturityLevelOffset = 0;
+        var mainlineLevel = 1;
+        var experimentalTagLevel = 1;
+        if(maturityLevels) {
+            switch (maturity) {
+                case 'DEV': mainlineMaturityLevelOffset = 1; break
+                case 'TEST': mainlineMaturityLevelOffset = 2; break
+                case 'USER': mainlineMaturityLevelOffset = 3; break
+            }
+        } 
+        var experimentalLevel = numberOfExperimentalBranches + experimentalTagLevel + mainlineLevel - experimentalBranchLevelOffset + mainlineMaturityLevelOffset
+        if(displayReleaseBranches) experimentalLevel++;
+        return experimentalLevel
+    }
     
     if(!paramsObj.snapshotOnSeparateLevel && !paramsObj.maturityLevels) {
-        while (paramsObj.numberOfExperimentalBranches-- > 0) {
-            levelsCounter++;
-            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(levelsCounter)
+        if(displayExperimentalBranches) {
+            while (paramsObj.numberOfExperimentalBranches-- > 0) {
+                levelsCounter++;
+                resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+                resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(levelsCounter)
+                resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(levelsCounter)
+                resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(levelsCounter)
+            }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(numberOfExperimentalBranches > 0) 
+        if(displayExperimentalBranches) 
             resultObj.EXPERIMENTAL_TAG_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_LEVEL = levelsCounter;
-        if(numberOfReleaseBranches > 0)
+        if(displayReleaseBranches)
             resultObj.RELEASE_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            levelsCounter++;
-            resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        if(displayReleaseBranches) {
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                levelsCounter++;
+                resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+            }
         }
     } else if(!paramsObj.maturityLevels) {
         var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
-        while (paramsObj.numberOfExperimentalBranches-- > 0) {
-            levelsCounter++;
-            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + 3)
-            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + 3)
-            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + 3)
+        if(displayExperimentalBranches) {
+            while (paramsObj.numberOfExperimentalBranches-- > 0) {
+                levelsCounter++;
+                resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+                resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('DEV', (paramsObj.numberOfExperimentalBranches) ,paramsObj))
+                resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('TEST', (paramsObj.numberOfExperimentalBranches),paramsObj))
+                resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('USER', (paramsObj.numberOfExperimentalBranches), paramsObj))
+            }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(numberOfExperimentalBranches > 0) 
+        if(displayExperimentalBranches)
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
-        if(numberOfReleaseBranches > 0)
+        if(displayReleaseBranches)
             resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
         var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+        if(displayReleaseBranches) {
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+            }
         }
         paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
         ++levelsCounter
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
-            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        if(displayReleaseBranches) {
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+            }
         }
     } else {
         var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
-        while (paramsObj.numberOfExperimentalBranches-- > 0) {
-            levelsCounter++;
-            resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-            resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + 4)
-            resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + 5)
-            resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + 6)
+        if(displayExperimentalBranches) {
+            while (paramsObj.numberOfExperimentalBranches-- > 0) {
+                levelsCounter++;
+                resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
+                resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('DEV', (paramsObj.numberOfExperimentalBranches ) ,paramsObj))
+                resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('TEST', (paramsObj.numberOfExperimentalBranches),paramsObj))
+                resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('USER', (paramsObj.numberOfExperimentalBranches), paramsObj))
+            }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(numberOfExperimentalBranches > 0) 
+        if(displayExperimentalBranches) 
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
-        if(numberOfReleaseBranches > 0)
+        if(displayReleaseBranches)
             resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_DEV_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = ++levelsCounter;
         var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
-        }
-        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        ++levelsCounter
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
-        }
-        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        ++levelsCounter
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
-        }
-        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        ++levelsCounter
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
-        }
-        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        ++levelsCounter
-        while (paramsObj.numberOfReleaseBranches-- > 0) {
-            resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+        if(displayReleaseBranches) {
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
+            }
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            ++levelsCounter
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
+            }
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            ++levelsCounter
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
+            }
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            ++levelsCounter
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
+            }
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            ++levelsCounter
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
+            }
         }
     }
     return resultObj;
@@ -393,8 +441,8 @@ function streamlineGraph() {
         useShapes = true,
         nodeArrows = true,
         maturityLevels = true,
-        experimentalBranches = true,
-        releaseBranches = true,
+        displayExperimentalBranches = true,
+        displayReleaseBranches = true,
         zeroTag = true,
         tagTextMargin = 10,
         arrowSize = 10;
@@ -486,6 +534,8 @@ function streamlineGraph() {
             'width' : width,
             'mainlineBranch' : mainlineBranch,
 //            'experimentalBranches':           (experimentalBranches ? experimentalBranchesList : []),
+            'displayExperimentalBranches':    displayExperimentalBranches,
+            'displayReleaseBranches':         displayReleaseBranches,
             'experimentalBranches':           experimentalBranchesList,
             'releaseBranches':                releaseBranchesList,
         }
@@ -530,28 +580,29 @@ function streamlineGraph() {
         var tagConnectorNodes = data.tagConnectorNodes
         var branchArrows = data.branchArrows       
         var branchArrowNodes = data.branchArrowNodes   
+        var maturityLevelsList = data.maturityLevelsList   
         
-        if(!experimentalBranches) {
-            svg.selectAll('.experimentalBranch').style('visibility', 'hidden')
-            svg.selectAll('.experimentalTag').style('visibility', 'hidden')
-//            $('.experimentalBranch').hide()
-//            $('.experimentalTag').hide()
+        if(!displayExperimentalBranches) {
+//            svg.selectAll('.experimentalBranch').style('visibility', 'hidden')
+//            svg.selectAll('.experimentalTag').style('visibility', 'hidden')
+            $('.experimentalBranch').hide()
+            $('.experimentalTag').hide()
         } else {
-            svg.selectAll('.experimentalBranch').style('visibility', 'visible')
-            svg.selectAll('.experimentalTag').style('visibility', 'visible')
-//            $('.experimentalBranch').delay(1000).show(0)
-//            $('.experimentalTag').delay(1000).show(0)
+//            svg.selectAll('.experimentalBranch').style('visibility', 'visible')
+//            svg.selectAll('.experimentalTag').style('visibility', 'visible')
+            $('.experimentalBranch').delay(1000).show(0)
+            $('.experimentalTag').delay(1000).show(0)
         }
-        if(!releaseBranches) {
-            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
-            svg.selectAll('.releaseTag').style('visibility', 'hidden')
-//            $('.releaseBranch').hide()
-//            $('.releaseTag').hide()
+        if(!displayReleaseBranches) {
+//            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
+//            svg.selectAll('.releaseTag').style('visibility', 'hidden')
+            $('.releaseBranch').hide()
+            $('.releaseTag').hide()
         } else {
-            svg.selectAll('.releaseBranch').style('visibility', 'visible')
-            svg.selectAll('.releaseTag').style('visibility', 'visible')
-//            $('.releaseBranch').delay(1000).show(0)
-//            $('.releaseTag').delay(1000).show(0)
+//            svg.selectAll('.releaseBranch').style('visibility', 'visible')
+//            svg.selectAll('.releaseTag').style('visibility', 'visible')
+            $('.releaseBranch').delay(1000).show(0)
+            $('.releaseTag').delay(1000).show(0)
         }
         if(!maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
@@ -564,20 +615,11 @@ function streamlineGraph() {
             svg.selectAll('.maturityLevelShape')
                 .style('visibility', 'visible')
         
-            if(!releaseBranches) {
+            if(!displayReleaseBranches) {
                 svg.selectAll('.releaseMaturityLevel').style('visibility', 'hidden')
             } else {
                 svg.selectAll('.releaseMaturityLevel').style('visibility', 'visible')
             }
-            var maturityLevelsList = [
-                {'name': 'DEV', 'level': c.MAINLINE_DEV_LEVEL, color: '#edf8e9', class: 'mainlineMaturityLevel'}, 
-                {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3', class: 'mainlineMaturityLevel'},
-                {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476', class: 'mainlineMaturityLevel'},
-                {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3', class: 'releaseMaturityLevel'},
-                {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476', class: 'releaseMaturityLevel'}, 
-                {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354', class: 'releaseMaturityLevel'}, 
-                {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c', class: 'releaseMaturityLevel'} 
-            ]
             
             svg.selectAll('.maturityLevelShape').data(maturityLevelsList).enter()
                 .append('rect')
@@ -1122,16 +1164,16 @@ function streamlineGraph() {
     
     chart.releaseBranches  = function(_) {
         if (!arguments.length)
-            return releaseBranches;
-        releaseBranches = _;
-        return releaseBranches;
+            return displayReleaseBranches;
+        displayReleaseBranches = _;
+        return displayReleaseBranches;
     };
     
     chart.experimentalBranches = function(_) {
         if (!arguments.length)
-            return experimentalBranches;
-        experimentalBranches = _;
-        return experimentalBranches;
+            return displayExperimentalBranches;
+        displayExperimentalBranches = _;
+        return displayExperimentalBranches;
     };
     
     return chart;
