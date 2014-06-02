@@ -50,56 +50,18 @@ function generateData(p) {
     var levelHeight = p.levelHeight
     var yTopMargin = p.yTopMargin
     var width = p.width
+    var zeroTagVersion = p.zeroTagVersion
+    var mainlineBranch = p.mainlineBranch
+    var mainlineTags = p.mainlineTags
+    var experimentalBranches = p.experimentalBranches
+    var releaseBranches = p.releaseBranches
+    var experimentalTags = p.experimentalTags
+    var releaseTags = p.releaseTags
 
-    var branchConnectors = []
-    var branchConnectorNodes = []
-    var tagConnectors = []
-    var tagConnectorNodes = []
-    var branchArrows = []
-    var branchArrowNodes = []
+    var branchConnectors = [], branchConnectorNodes = []
+    var tagConnectors = [], tagConnectorNodes = []
+    var branchArrows = [], branchArrowNodes = []
 
-    var zeroTagVersion = "0.x.x"
-    
-    var mainlineBranch = {version: "x.x", name: "trunk"}
-    
-    var mainlineTags = [
-        {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
-        {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
-        {version: "x.8", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
-    ]
-    
-    var experimentalBranches = [
-        {version: "x.x", sequence: 3, name: "branch1"},
-        {version: "x.x", sequence: 10, name: "branch2"}
-    ]
-    var releaseBranches = [
-        {version: "1.x", sequence: 5, name: "release1"},
-        {version: "2.x", sequence: 7, name: "release2"}
-    ]
-    
-    var experimentalTags = [
-        {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.9", sequence: 10, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "x.10", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.11", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
-        {version: "x.12", sequence: 16, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.13", sequence: 18, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "x.14", sequence: 20, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-    ]
-    var releaseTags = [
-        {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "2.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "1.0", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "1.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "1.2", sequence: 15, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
-        {version: "1.3", sequence: 17, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
-        {version: "2.1", sequence: 19, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
-    ]
-    
-    
     var tagConnectorNodesMapping = function(tag, i ) {
         return [
             {
@@ -493,12 +455,28 @@ function streamlineGraph() {
         }
         var xRightMargin = 100;
         
+        var zeroTagVersion = "0.x.x"
+
+        var mainlineBranch = {version: "x.x", name: "trunk"}
+        
+        var experimentalBranchesList = [
+            {version: "x.x", sequence: 3, name: "branch1"},
+            {version: "x.x", sequence: 10, name: "branch2"}
+        ]
+        var releaseBranchesList = [
+            {version: "1.x", sequence: 5, name: "release1"},
+            {version: "2.x", sequence: 7, name: "release2"}
+        ]
+        
         var options = {
             'snapshotOnSeparateLevel':      snapshotOnSeparateLevel,
             'maturityLevels':               maturityLevels,
-            'numberOfExperimentalBranches':   (experimentalBranches ? 2 : 0),
-            'numberOfReleaseBranches':        (releaseBranches ? 2 : 0),
+//            'numberOfExperimentalBranches':   (experimentalBranches ? experimentalBranchesList.length : 0),
+            'numberOfExperimentalBranches':   experimentalBranchesList.length ,
+//            'numberOfReleaseBranches':        (releaseBranches ? releaseBranchesList.length : 0),
+            'numberOfReleaseBranches':        releaseBranchesList.length,
             'zeroTag' : zeroTag,
+            'zeroTagVersion' : zeroTagVersion,
             'xRightMargin' : xRightMargin,
             'xLeftMargin' : xLeftMargin,
             'tagTextMargin' : tagTextMargin,
@@ -506,26 +484,74 @@ function streamlineGraph() {
             'levelHeight' : levelHeight,
             'yTopMargin' : yTopMargin,
             'width' : width,
-            'experimentalBranches':           [0, 0],
-            'releaseBranches':                [0, 0],
+            'mainlineBranch' : mainlineBranch,
+//            'experimentalBranches':           (experimentalBranches ? experimentalBranchesList : []),
+            'experimentalBranches':           experimentalBranchesList,
+            'releaseBranches':                releaseBranchesList,
         }
         var c = getLevelsConfiguration(options);
+
+        var mainlineTags = [
+            {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
+            {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
+            {version: "x.8", sequence: 8, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
+        ]
+
+        var experimentalTags = [
+            {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+            {version: "x.9", sequence: 10, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+            {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
+            {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
+            {version: "x.10", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+            {version: "x.11", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
+            {version: "x.12", sequence: 16, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+            {version: "x.13", sequence: 18, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+            {version: "x.14", sequence: 20, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+        ]
+        var releaseTags = [
+            {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+            {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+            {version: "2.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
+            {version: "1.0", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
+            {version: "1.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
+            {version: "1.2", sequence: 15, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
+            {version: "1.3", sequence: 17, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
+            {version: "2.1", sequence: 19, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
+        ]
+        options.mainlineTags = mainlineTags
+        options.experimentalTags = experimentalTags
+        options.releaseTags = releaseTags
+        
+        var data = generateData(options)
+        console.log(data)
+        var branchConnectors = data.branchConnectors   
+        var branchConnectorNodes = data.branchConnectorNodes
+        var tagConnectors = data.tagConnectors      
+        var tagConnectorNodes = data.tagConnectorNodes
+        var branchArrows = data.branchArrows       
+        var branchArrowNodes = data.branchArrowNodes   
         
         if(!experimentalBranches) {
-//            svg.selectAll('.experimentalBranch').style('visibility', 'hidden')
-//            svg.selectAll('.experimentalTag').style('visibility', 'hidden')
-            $('.experimentalBranch').hide()
-            $('.experimentalTag').hide()
+            svg.selectAll('.experimentalBranch').style('visibility', 'hidden')
+            svg.selectAll('.experimentalTag').style('visibility', 'hidden')
+//            $('.experimentalBranch').hide()
+//            $('.experimentalTag').hide()
         } else {
-            $('.experimentalBranch').delay(1000).show(0)
-            $('.experimentalTag').delay(1000).show(0)
+            svg.selectAll('.experimentalBranch').style('visibility', 'visible')
+            svg.selectAll('.experimentalTag').style('visibility', 'visible')
+//            $('.experimentalBranch').delay(1000).show(0)
+//            $('.experimentalTag').delay(1000).show(0)
         }
         if(!releaseBranches) {
-            $('.releaseBranch').hide()
-            $('.releaseTag').hide()
+            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
+            svg.selectAll('.releaseTag').style('visibility', 'hidden')
+//            $('.releaseBranch').hide()
+//            $('.releaseTag').hide()
         } else {
-            $('.releaseBranch').delay(1000).show(0)
-            $('.releaseTag').delay(1000).show(0)
+            svg.selectAll('.releaseBranch').style('visibility', 'visible')
+            svg.selectAll('.releaseTag').style('visibility', 'visible')
+//            $('.releaseBranch').delay(1000).show(0)
+//            $('.releaseTag').delay(1000).show(0)
         }
         if(!maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
@@ -592,15 +618,6 @@ function streamlineGraph() {
             
             svg.selectAll('.maturityLevelLabel').data(maturityLevelsList).exit()
         }
-        
-        var data = generateData(options)
-        console.log(data)
-        var branchConnectors = data.branchConnectors   
-        var branchConnectorNodes = data.branchConnectorNodes
-        var tagConnectors = data.tagConnectors      
-        var tagConnectorNodes = data.tagConnectorNodes
-        var branchArrows = data.branchArrows       
-        var branchArrowNodes = data.branchArrowNodes   
         
         var branchArrow = svg.selectAll(".arrow").data(branchArrows)
         branchArrow.enter()
@@ -782,9 +799,9 @@ function streamlineGraph() {
         // ================ TAGS ========================
         
         
-        var transformTagFrom = function(d) { 
-            return "translate(" + (tagConnectorNodes[d.t].x) + ", " + (tagConnectorNodes[d.t].y + tagTextMargin) + ") scale(0)"
-        }
+//        var transformTagFrom = function(d) { 
+//            return "translate(" + (tagConnectorNodes[d.t].x) + ", " + (tagConnectorNodes[d.t].y + tagTextMargin) + ") scale(0)"
+//        }
         var transformTag = function(d) { 
             return "translate(" + (tagConnectorNodes[d.t].x - tagTextMargin) + ", " + (tagConnectorNodes[d.t].y ) + ")"
         }
@@ -796,9 +813,9 @@ function streamlineGraph() {
 //            .transition().duration(200).ease('linear')
             .attr('transform', transformTag)
         var tagGroupUpdate = svg.selectAll('.tagGroup').data(tagConnectors)
-        var tagGroupExit = svg.selectAll('.tagGroup').data(tagConnectors).exit()
-            .transition().duration(200).ease('linear')
-            .attr('transform', transformTagFrom)
+//        var tagGroupExit = svg.selectAll('.tagGroup').data(tagConnectors).exit()
+////            .transition().duration(200).ease('linear')
+//            .attr('transform', transformTag)
         svg.selectAll('.tagGroup').data(tagConnectors).transition().duration(1000).ease("quad")
             .attr('transform', transformTag)
           
