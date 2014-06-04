@@ -58,6 +58,7 @@ var isZeroTag = function(obj) {
 }
 var isMainlineOrExperimentalTag = function(obj) {
     return /x\.\d+/i.test(obj.version) || /^\d+$/.test(obj.version)
+        || /\/x\.\d+/i.test(obj.version) || /\/^\d+$/.test(obj.version)
 }
 var isMainlineOrExperimentalBranch = function(obj) {
     return obj.version == "x.x" || obj.version == "x"
@@ -67,7 +68,8 @@ var isMainlineBranch = function(obj) {
     return isMainlineOrExperimentalBranch(obj) && isZeroTag(obj.parentObj)
 }
 var isReleaseTag = function(obj, childArr) {
-    return /\d+\.\d+/.test(obj.version)
+    return /\d+\.\d+/.test(obj.version) 
+        || /.*\/\d+\.\d+/.test(obj.version)
 }
 var isReleaseBranch = function(obj, childArr) {
     return /\d+\.x/i.test(obj.version)
@@ -199,11 +201,28 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         return 0;
     }
     
+    var extractVersionNumber = function(version) {
+        var versionNumber = version
+        if(version.indexOf('/') != -1) {
+            versionSplitArr = version.split('/')
+            versionNumber = versionSplitArr[1]
+        }
+        return versionNumber
+    }
+    var extractMaturityLevel = function(version) {
+        var maturityLevel = ""
+        if(version.indexOf('/') != -1) {
+            versionSplitArr = version.split('/')
+            maturityLevel = versionSplitArr[0]
+        }
+        return maturityLevel
+    }
+    
     var experimentalBranches = parsedArtifactTree.experimentalBranches
         .sort( sortByTimestamp )
         .map(function(a, i ) {
                 return {
-                    version: a.version, 
+                    version: extractVersionNumber(a.version), 
                     sequence: findSequenceByVersion(a.parentObj.version, allTags), 
                     name: a.name
                 } 
@@ -216,8 +235,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .sort( sortByTimestamp )
         .map(function(a, i ) {
                 return {
-                    version: a.version, 
-                    sequence: findSequenceByVersion(a.parentObj.version, allTags), // TODO: replace this line
+                    version: extractVersionNumber(a.version), 
+                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
                     name: a.name
                 } 
             })
@@ -293,6 +312,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     }
     var getExperimentalTagToLevel = function(artifact, c) {
         var experimentalBranchIndex = 0;
+        var maturityLevel = ""
+        var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
             return c.EXPERIMENTAL_TAG_LEVEL
         } else if (isMainlineOrExperimentalBranch(artifact.parentObj)) {
@@ -301,7 +322,14 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     experimentalBranchIndex = i; return;
                 }
             })
-            return c.EXPERIMENTAL_BRANCH_DEV_LEVELS[experimentalBranchIndex]
+            maturityLevel = extractMaturityLevel(artifact.version)
+            switch(maturityLevel) {
+                case "DEV": toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[experimentalBranchIndex]; break;
+                case "TEST": toLevel = c.EXPERIMENTAL_BRANCH_TEST_LEVELS[experimentalBranchIndex]; break;
+                case "USER": toLevel = c.EXPERIMENTAL_BRANCH_USER_LEVELS[experimentalBranchIndex]; break;
+                default: toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[experimentalBranchIndex]; break;
+            }
+            return toLevel
         }
     }
     var getReleaseTagFromLevel = function(artifact, c) {
@@ -319,6 +347,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     }
     var getReleaseTagToLevel = function(artifact, c) {
         var releaseBranchIndex = 0;
+        var maturityLevel = ""
+        var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
             return c.RELEASE_TAG_LEVEL
         } else if (isReleaseBranch(artifact.parentObj)) {
@@ -327,7 +357,15 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     releaseBranchIndex = i; return;
                 }
             })
-            return c.RELEASE_BRANCH_TEST_LEVELS[releaseBranchIndex]
+            maturityLevel = extractMaturityLevel(artifact.version)
+            switch(maturityLevel) {
+                case "TEST": toLevel = c.RELEASE_BRANCH_TEST_LEVELS[releaseBranchIndex]; break;
+                case "USER": toLevel = c.RELEASE_BRANCH_USER_LEVELS[releaseBranchIndex]; break;
+                case "RC"  : toLevel = c.RELEASE_BRANCH_RC_LEVELS[releaseBranchIndex];   break;
+                case "PROD": toLevel = c.RELEASE_BRANCH_PROD_LEVELS[releaseBranchIndex]; break;
+                default    : toLevel = c.RELEASE_BRANCH_TEST_LEVELS[releaseBranchIndex];      break;
+            }
+            return toLevel
         }
     }
     
@@ -335,11 +373,22 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .sort( sortByTimestamp )
         .map ( function(a) { 
             return {
-                version: a.version, 
+                version: extractVersionNumber(a.version), 
                 sequence: findSequenceByVersion(a.version, allTags), 
                 from: c.MAINLINE_LEVEL, 
-                to: c.MAINLINE_DEV_LEVEL} 
-            })
+                to: (function(artifact) {
+                    var toLevel = 0
+                    switch(extractMaturityLevel(artifact.version)) {
+                        case "DEV": toLevel = c.MAINLINE_DEV_LEVEL; break;
+                        case "TEST": toLevel = c.MAINLINE_TEST_LEVEL; break;
+                        case "USER": toLevel = c.MAINLINE_USER_LEVEL; break;
+                        default: toLevel = c.MAINLINE_DEV_LEVEL; break;
+                    }
+                    return toLevel;
+                }) (a),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
                 
     if(window.debug) {
         console.log('mainlineTags:')
@@ -349,13 +398,14 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var experimentalTags = parsedArtifactTree.experimentalTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
-                return {
-                    version: a.version, 
-                    sequence: findSequenceByVersion(a.version, allTags), 
-                    from: getExperimentalTagFromLevel(a, c), 
-                    to: getExperimentalTagToLevel(a, c)
-                } 
-            })
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: findSequenceByVersion(a.version, allTags), 
+                from: getExperimentalTagFromLevel(a, c), 
+                to: getExperimentalTagToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
     if(window.debug) {
         console.log('experimentalTags:')
         console.log(experimentalTags)
@@ -364,13 +414,14 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var releaseTags = parsedArtifactTree.releaseTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
-                return {
-                    version: a.version, 
-                    sequence: findSequenceByVersion(a.version, allTags), 
-                    from: getReleaseTagFromLevel(a, c), 
-                    to: getReleaseTagToLevel(a, c)
-                } 
-            })
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: findSequenceByVersion(a.version, allTags), 
+                from: getReleaseTagFromLevel(a, c), 
+                to: getReleaseTagToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
     if(window.debug) {
         console.log('releaseTags:')
         console.log(releaseTags)
