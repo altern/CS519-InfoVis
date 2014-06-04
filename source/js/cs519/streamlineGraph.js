@@ -1,3 +1,5 @@
+window.debug = true
+
 function firstCol(i, offset) {
     return offset + i*2;
 }
@@ -160,12 +162,25 @@ function parseArtifactTreeArr ( arr, parentObj ) {
 function generateDataFromArtifactTree ( artifactTree, p ) {
     
     var parsedArtifactTree = parseArtifactTree(artifactTree, {})
-    console.log(parsedArtifactTree)
-        
+    if(window.debug) {
+        console.log('parsedArtifactTree:')
+        console.log(parsedArtifactTree)
+    }
+    
     var sortByTimestamp = function(a, b) { return a.timestamp > b.timestamp }
     
     var zeroTagVersion = parsedArtifactTree.zeroTagVersion
+    if(window.debug) {
+        console.log('zeroTagVersion:')
+        console.log(zeroTagVersion)
+    }
+    
     var mainlineBranch = parsedArtifactTree.mainlineBranch
+    
+    if(window.debug) {
+        console.log('mainlineBranch:')
+        console.log(mainlineBranch)
+    }
     
     var experimentalBranches = parsedArtifactTree.experimentalBranches
         .sort( sortByTimestamp )
@@ -176,6 +191,10 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     name: a.name
                 } 
             })
+    if(window.debug) {
+        console.log('experimentalBranches:')
+        console.log(experimentalBranches)
+    }
     var releaseBranches = parsedArtifactTree.releaseBranches
         .sort( sortByTimestamp )
         .map(function(a, i ) {
@@ -185,15 +204,65 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     name: a.name
                 } 
             })
+    if(window.debug) {
+        console.log('releaseBranches:')
+        console.log(releaseBranches)
+    }
+    
+    zeroTagVersion = "0.x.x"
+
+    mainlineBranch = {version: "x.x", name: "trunk"}
+    
+    experimentalBranches = [
+        {version: "x.x", sequence: 3, name: "branch1"},
+        {version: "x.x", sequence: 10, name: "branch2"}
+    ]
+    releaseBranches = [
+        {version: "1.x", sequence: 5, name: "release1"},
+        {version: "2.x", sequence: 7, name: "release2"}
+    ]
+    
     p.releaseBranches = releaseBranches
     p.experimentalBranches = experimentalBranches
     p.numberOfReleaseBranches = ( releaseBranches.length )
     p.numberOfExperimentalBranches = ( experimentalBranches.length )
-
-    var c = getLevelsConfiguration(p)
-            
-    console.log(experimentalBranches)
         
+    var c = getLevelsConfiguration(p)
+    if(window.debug) {
+        console.log('levelsConfiguration:')
+        console.log(c)
+    }
+    
+    mainlineTags = [
+        {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
+        {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
+        {version: "x.8", sequence: 8, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
+    ]
+
+    experimentalTags = [
+        {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+        {version: "x.9", sequence: 10, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+        {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
+        {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
+        {version: "x.10", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+        {version: "x.11", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
+        {version: "x.12", sequence: 16, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+        {version: "x.13", sequence: 18, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+        {version: "x.14", sequence: 20, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+    ]
+    releaseTags = [
+        {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+        {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+        {version: "2.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
+        {version: "1.0", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
+        {version: "1.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
+        {version: "1.2", sequence: 15, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
+        {version: "1.3", sequence: 17, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
+        {version: "2.1", sequence: 19, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
+    ]
+
+/*
+    
     var getExperimentalTagFromLevel = function(artifact, c) {
         var experimentalBranchIndex = 0;
         if(isMainlineBranch(artifact.parentObj)) {
@@ -282,7 +351,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
             })
             
     console.log(releaseTags)
-                
+    */
+    
     var data = {}
     data.zeroTagVersion = zeroTagVersion
     data.mainlineBranch = mainlineBranch
@@ -291,45 +361,11 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.mainlineTags = mainlineTags
     data.experimentalTags = experimentalTags
     data.releaseTags = releaseTags
-    /*data.experimentalBranchesList = [
-        {version: "x.x", sequence: 3, name: "branch1"},
-        {version: "x.x", sequence: 10, name: "branch2"}
-    ]
-    data.releaseBranchesList = [
-        {version: "1.x", sequence: 5, name: "release1"},
-        {version: "2.x", sequence: 7, name: "release2"}
-    ]
-        
-    data.mainlineTags = [
-        {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
-        {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
-        {version: "x.8", sequence: 8, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
-    ]
-
-    data.experimentalTags = [
-        {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.9", sequence: 10, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "x.10", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.11", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
-        {version: "x.12", sequence: 16, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.13", sequence: 18, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "x.14", sequence: 20, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-    ]
-    data.releaseTags = [
-        {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "2.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "1.0", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "1.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "1.2", sequence: 15, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
-        {version: "1.3", sequence: 17, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
-        {version: "2.1", sequence: 19, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
-    ]*/
+    
+    
     return data;
 }
-function generateData(p) {
+function generateVisualizationData(p) {
     
     if(!p) {
         var p = {
@@ -387,14 +423,17 @@ function generateData(p) {
         {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476', class: 'mainlineMaturityLevel'},
     ]
     if(displayReleaseBranches && numberOfReleaseBranches > 0) {        
-        maturityLevelsList.concat([
+        maturityLevelsList = maturityLevelsList.concat([
             {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3', class: 'releaseMaturityLevel'},
             {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476', class: 'releaseMaturityLevel'}, 
             {'name': 'RC', 'level': c.RELEASE_BRANCH_RC_LEVELS[dec(1)], color: '#31a354', class: 'releaseMaturityLevel'}, 
             {'name': 'PROD', 'level': c.RELEASE_BRANCH_PROD_LEVELS[dec(1)], color: '#006d2c', class: 'releaseMaturityLevel'} 
         ])
     }
-        
+    if(window.debug) {
+        console.log('maturityLevelsList:')
+        console.log(maturityLevelsList)
+    }
     var tagConnectorNodesMapping = function(tag, i ) {
         return [
             {
@@ -628,7 +667,8 @@ function getLevelsConfiguration(paramsObj) {
             }
         } 
         var experimentalLevel = numberOfExperimentalBranches + experimentalTagLevel + mainlineLevel - experimentalBranchLevelOffset + mainlineMaturityLevelOffset
-        if(displayReleaseBranches) experimentalLevel++;
+        if(displayReleaseBranches || !maturityLevels) 
+            experimentalLevel++;
         return experimentalLevel
     }
     
@@ -676,8 +716,11 @@ function getLevelsConfiguration(paramsObj) {
         if(displayExperimentalBranches)
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
-        if(displayReleaseBranches)
+        if(displayReleaseBranches) {
             resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
+        } else {
+            ++levelsCounter;
+        }
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
@@ -703,7 +746,7 @@ function getLevelsConfiguration(paramsObj) {
             while (paramsObj.numberOfExperimentalBranches-- > 0) {
                 levelsCounter++;
                 resultObj.EXPERIMENTAL_BRANCH_LEVELS.push(levelsCounter)
-                resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('DEV', (paramsObj.numberOfExperimentalBranches ) ,paramsObj))
+                resultObj.EXPERIMENTAL_BRANCH_DEV_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('DEV', (paramsObj.numberOfExperimentalBranches ),paramsObj))
                 resultObj.EXPERIMENTAL_BRANCH_TEST_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('TEST', (paramsObj.numberOfExperimentalBranches),paramsObj))
                 resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('USER', (paramsObj.numberOfExperimentalBranches), paramsObj))
             }
@@ -825,26 +868,11 @@ function streamlineGraph() {
         }
         var xRightMargin = 100;
         
-        /*var zeroTagVersion = "0.x.x"
-
-        var mainlineBranch = {version: "x.x", name: "trunk"}
-        
-        var experimentalBranchesList = [
-            {version: "x.x", sequence: 3, name: "branch1"},
-            {version: "x.x", sequence: 10, name: "branch2"}
-        ]
-        var releaseBranchesList = [
-            {version: "1.x", sequence: 5, name: "release1"},
-            {version: "2.x", sequence: 7, name: "release2"}
-        ]*/
-        
         var d = generateDataFromArtifactTree(data, {
             'displayExperimentalBranches':    displayExperimentalBranches,
             'displayReleaseBranches':         displayReleaseBranches,
             'snapshotOnSeparateLevel':      snapshotOnSeparateLevel,
             'maturityLevels':               maturityLevels,
-            'tagsDistance' : tagsDistance,
-            'levelHeight' : levelHeight,
         })
         var zeroTagVersion = d.zeroTagVersion
         var mainlineBranch = d.mainlineBranch
@@ -855,11 +883,9 @@ function streamlineGraph() {
         var releaseTags = d.releaseTags
         
         var options = {
-            'snapshotOnSeparateLevel':      snapshotOnSeparateLevel,
-            'maturityLevels':               maturityLevels,
-//            'numberOfExperimentalBranches':   (experimentalBranches ? experimentalBranchesList.length : 0),
+            'snapshotOnSeparateLevel':        snapshotOnSeparateLevel,
+            'maturityLevels':                 maturityLevels,
             'numberOfExperimentalBranches':   experimentalBranchesList.length ,
-//            'numberOfReleaseBranches':        (releaseBranches ? releaseBranchesList.length : 0),
             'numberOfReleaseBranches':        releaseBranchesList.length,
             'zeroTag' : zeroTag,
             'zeroTagVersion' : zeroTagVersion,
@@ -871,20 +897,20 @@ function streamlineGraph() {
             'yTopMargin' : yTopMargin,
             'width' : width,
             'mainlineBranch' : mainlineBranch,
-//            'experimentalBranches':           (experimentalBranches ? experimentalBranchesList : []),
             'displayExperimentalBranches':    displayExperimentalBranches,
             'displayReleaseBranches':         displayReleaseBranches,
             'experimentalBranches':           experimentalBranchesList,
             'releaseBranches':                releaseBranchesList,
+            'mainlineTags' :                  mainlineTags,
+            'experimentalTags' :              experimentalTags,
+            'releaseTags' :                   releaseTags,
         }
-        //var c = getLevelsConfiguration(options);
         
-        options.mainlineTags = mainlineTags
-        options.experimentalTags = experimentalTags
-        options.releaseTags = releaseTags
-        
-        var data = generateData(options)
-        console.log(data)
+        var data = generateVisualizationData(options)
+        if(window.debug) {
+            console.log("visualizationData:")
+            console.log(data)
+        }
         var branchConnectors = data.branchConnectors   
         var branchConnectorNodes = data.branchConnectorNodes
         var tagConnectors = data.tagConnectors      
