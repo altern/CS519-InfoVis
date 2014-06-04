@@ -57,7 +57,7 @@ var isZeroTag = function(obj) {
         || obj.version == "0.X.X" || obj.version == "0.X" 
 }
 var isMainlineOrExperimentalTag = function(obj) {
-    return /x\.\d+/i.test(obj.version) || /\d+/.test(obj.version)
+    return /x\.\d+/i.test(obj.version) || /^\d+$/.test(obj.version)
 }
 var isMainlineOrExperimentalBranch = function(obj) {
     return obj.version == "x.x" || obj.version == "x"
@@ -167,7 +167,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(parsedArtifactTree)
     }
     
-    var sortByTimestamp = function(a, b) { return a.timestamp > b.timestamp }
+    var sortByTimestamp = function (a, b) { return parseInt(a.timestamp) - parseInt(b.timestamp) }
     
     var zeroTagVersion = parsedArtifactTree.zeroTagVersion
     if(window.debug) {
@@ -226,18 +226,18 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(releaseBranches)
     }
 
-    zeroTagVersion = "0.x.x"
+    // zeroTagVersion = "0.x.x"
 
-    mainlineBranch = {version: "x.x", name: "trunk"}
+    // mainlineBranch = {version: "x.x", name: "trunk"}
     
-    experimentalBranches = [
-        {version: "x.x", sequence: 3, name: "branch1"},
-        {version: "x.x", sequence: 10, name: "branch2"}
-    ]
-    releaseBranches = [
-        {version: "1.x", sequence: 5, name: "release1"},
-        {version: "2.x", sequence: 7, name: "release2"}
-    ]
+    // experimentalBranches = [
+        // {version: "x.x", sequence: 3, name: "branch1"},
+        // {version: "x.x", sequence: 10, name: "branch2"}
+    // ]
+    // releaseBranches = [
+        // {version: "1.x", sequence: 5, name: "release1"},
+        // {version: "2.x", sequence: 7, name: "release2"}
+    // ]
 
     p.releaseBranches = releaseBranches
     p.experimentalBranches = experimentalBranches
@@ -250,33 +250,33 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(c)
     }
 
-    mainlineTags = [
-        {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
-        {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
-        {version: "x.8", sequence: 8, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
-    ]
+    // mainlineTags = [
+        // {version: "x.1", sequence: 1, from: c.MAINLINE_LEVEL, to: c.MAINLINE_DEV_LEVEL},
+        // {version: "x.2", sequence: 2, from: c.MAINLINE_LEVEL, to: c.MAINLINE_TEST_LEVEL},
+        // {version: "x.8", sequence: 8, from: c.MAINLINE_LEVEL, to: c.MAINLINE_USER_LEVEL},
+    // ]
 
-    experimentalTags = [
-        {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.9", sequence: 9, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
-        {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "x.10", sequence: 10, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.11", sequence: 11, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
-        {version: "x.12", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
-        {version: "x.13", sequence: 13, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "x.14", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
-    ]
-    releaseTags = [
-        {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
-        {version: "2.0", sequence: 8, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
-        {version: "1.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
-        {version: "1.1", sequence: 10, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
-        {version: "1.2", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
-        {version: "1.3", sequence: 12, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
-        {version: "2.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
-    ]
+    // experimentalTags = [
+        // {version: "x.3", sequence: 3, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+        // {version: "x.9", sequence: 9, from: c.MAINLINE_LEVEL, to: c.EXPERIMENTAL_TAG_LEVEL},
+        // {version: "x.4", sequence: 4, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(1)]},
+        // {version: "x.6", sequence: 6, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(1)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(1)]},
+        // {version: "x.10", sequence: 10, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+        // {version: "x.11", sequence: 11, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_DEV_LEVELS[dec(2)]},
+        // {version: "x.12", sequence: 12, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_TEST_LEVELS[dec(2)]},
+        // {version: "x.13", sequence: 13, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+        // {version: "x.14", sequence: 14, from: c.EXPERIMENTAL_BRANCH_LEVELS[dec(2)], to: c.EXPERIMENTAL_BRANCH_USER_LEVELS[dec(2)]},
+    // ]
+    // releaseTags = [
+        // {version: "x.5", sequence: 5, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+        // {version: "x.7", sequence: 7, from: c.MAINLINE_LEVEL, to: c.RELEASE_TAG_LEVEL},
+        // {version: "2.0", sequence: 8, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(2)]},
+        // {version: "1.0", sequence: 9, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_TEST_LEVELS[dec(1)]},
+        // {version: "1.1", sequence: 10, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_USER_LEVELS[dec(1)]},
+        // {version: "1.2", sequence: 11, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(1)]},
+        // {version: "1.3", sequence: 12, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
+        // {version: "2.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
+    // ]
 
     var getExperimentalTagFromLevel = function(artifact, c) {
         var experimentalBranchIndex = 0;
@@ -318,6 +318,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         }
     }
     var getReleaseTagToLevel = function(artifact, c) {
+        var releaseBranchIndex = 0;
         if(isMainlineBranch(artifact.parentObj)) {
             return c.RELEASE_TAG_LEVEL
         } else if (isReleaseBranch(artifact.parentObj)) {
@@ -326,11 +327,11 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     releaseBranchIndex = i; return;
                 }
             })
-            return c.RELEASE_BRANCH_DEV_LEVELS[releaseBranchIndex]
+            return c.RELEASE_BRANCH_TEST_LEVELS[releaseBranchIndex]
         }
     }
     
-    /*var mainlineTags = parsedArtifactTree.mainlineTags
+    var mainlineTags = parsedArtifactTree.mainlineTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
             return {
@@ -340,7 +341,10 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                 to: c.MAINLINE_DEV_LEVEL} 
             })
                 
-    console.log(mainlineTags)
+    if(window.debug) {
+        console.log('mainlineTags:')
+        console.log(mainlineTags)
+    }
     
     var experimentalTags = parsedArtifactTree.experimentalTags
         .sort( sortByTimestamp )
@@ -352,9 +356,11 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     to: getExperimentalTagToLevel(a, c)
                 } 
             })
+    if(window.debug) {
+        console.log('experimentalTags:')
+        console.log(experimentalTags)
+    }
     
-    console.log(experimentalTags)
-            
     var releaseTags = parsedArtifactTree.releaseTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
@@ -365,9 +371,11 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                     to: getReleaseTagToLevel(a, c)
                 } 
             })
-            
-    console.log(releaseTags)*/
-    
+    if(window.debug) {
+        console.log('releaseTags:')
+        console.log(releaseTags)
+    }
+
     var data = {}
     data.zeroTagVersion = zeroTagVersion
     data.mainlineBranch = mainlineBranch
@@ -376,7 +384,6 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.mainlineTags = mainlineTags
     data.experimentalTags = experimentalTags
     data.releaseTags = releaseTags
-    
     
     return data;
 }
