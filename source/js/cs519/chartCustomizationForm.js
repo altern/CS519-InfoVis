@@ -31,10 +31,15 @@ var drawChart = function(valueObj) {
     var chart = window[valueObj.chartType].call();
     if(chart['xColumnName'] != undefined) 
         chart.xColumnName(valueObj.xColumnName)
-    if(chart['width'] != undefined) 
+    if(chart['width'] != undefined) {
         chart.width(valueObj.width)
-    if(chart['height'] != undefined) 
+	$('#visualization').width(valueObj.width)
+    }
+    if(chart['height'] != undefined) {
         chart.height(valueObj.height)
+	$('#visualization').height(valueObj.height)
+	$('#controls').height(valueObj.height)
+    }
     if(chart['dataFile'] != undefined) 
         chart.dataFile(valueObj.dataset)
     if(chart['xParseFormat'] != undefined) 

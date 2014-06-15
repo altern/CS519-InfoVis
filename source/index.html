@@ -103,9 +103,6 @@
                 <div id="charts">
                     <div id="controls" style="height:520px">
                         <span class="controlLabel">Chart type:</span><br />
-                        <input type="radio" name="chartType" value="stackedAreaChart" />Stacked area chart<br />
-                        <input type="radio" name="chartType" value="multiSeriesLineChart" />Multi-series line chart<br />
-                        <input type="radio" name="chartType" value="forcedDirectedGraph" />Forced directed graph<br />
                         <input type="radio" name="chartType" value="streamlineGraph" checked="checked"/>Streamline graph<br />
                         <br />
                         <input type="checkbox" name="snapshotOnSeparateLevel" checked="checked"/>Snapshot on separate level<br />
@@ -120,37 +117,9 @@
                         <br />
                         <span class="controlLabel">Dataset:</span><br />
                         <select name="dataset">
-                            <option name="dataset" value="browsers.csv" >browsers.csv</option>
-                            <option name="dataset" value="temperatures.csv" >temperatures.csv</option>
-                            <option name="dataset" value="interests.json">interests.json</option>
-                            <option name="dataset" value="versions.json">versions.json</option>
                             <option name="dataset" value="artifactTree.json">artifactTree.json</option>
                             <option name="dataset" value="artifactTree2.json" selected="selected">artifactTree2.json</option>
                         </select><br /><br />
-                        <span class="controlLabel">Name of data column for x-axis:</span><br />
-                        <input type="text" size="20" name="xColumnName" value="date"/><br /><br />
-                        <span class="controlLabel">Parsing format for x-axis data:</span><br />
-                        <input type="text" size="20" name="xParseFormat" value="%Y%m%d"/><br /><br />
-                        <span class="controlLabel">Format for x-axis:</span><br />
-                        <select name="xFormat">
-                            <option name="xFormat" value="number" >number</option>
-                            <option name="yFormat" value="month" selected="selected">month</option>
-                            <option name="xFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                            <option name="xFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                            <option name="yFormat" value="percents">percents</option>
-                        </select><br /><br />
-                        <span class="controlLabel">Format for y-axis:</span><br />
-                        <select name="yFormat">
-                            <option name="yFormat" value="number" selected="selected">number</option>
-                            <option name="yFormat" value="month">month</option>
-                            <option name="yFormat" value="date (%y-%b-%d)">date (%y-%b-%d)</option>
-                            <option name="yFormat" value="date (%Y%m%d)">date (%Y%m%d)</option>
-                            <option name="yFormat" value="percents">percents</option>
-                        </select><br /><br />
-                        <span class="controlLabel">Label for x-axis:</span><br />
-                        <input type="text" size="20" name="xLabel" value=""/><br /><br />
-                        <span class="controlLabel">Label for y-axis</span><br />
-                        <input type="text" size="20" name="yLabel" value=""/><br /><br />
                         <div style="float:left">
                             <span class="controlLabel">Width:</span><br />
                             <input type="text" size="5" name="width" value="900"/>
