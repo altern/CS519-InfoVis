@@ -102,8 +102,8 @@ function parseArtifactTree ( artifactTree, parentObj ) {
     
     var artifactTreeObj, artifactTreeArr, parsedArtifactTree
     
-    artifactTreeObj = artifactTree[0]
-    artifactTreeArr = artifactTree[1]
+    artifactTreeObj = artifactTree['value']
+    artifactTreeArr = artifactTree['children']
     artifactTreeObj.parentObj = parentObj
     parsedArtifactTree = parseArtifactTreeArr(artifactTreeArr, artifactTreeObj)
     
