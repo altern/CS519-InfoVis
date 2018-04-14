@@ -155,17 +155,16 @@ function parseArtifactTreeArr ( arr, parentObj ) {
                 return parsedTree1
         });
     } else {
-        return defaultParsedTree
-        //{
-            //zeroTagVersion : '',
-            //mainlineBranch : {},
-            //mainlineTags : [],
-            //experimentalBranches : [],
-            //experimentalTags : [],
-            //releaseBranches : [],
-            //releaseTags : [],
-            //releaseRevisions : []
-        //}
+        return {
+            zeroTagVersion : '',
+            mainlineBranch : {},
+            mainlineTags : [],
+            experimentalBranches : [],
+            experimentalTags : [],
+            releaseBranches : [],
+            releaseTags : [],
+            releaseRevisions : []
+        }
     }
 }
 
@@ -436,7 +435,13 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .map ( function(a) { 
             return {
                 version: extractVersionNumber(a.version), 
-                sequence: findSequenceByVersion(isMainlineOrExperimentalTagOrReleaseRevision(a) ? a.version : a.parentObj.version, allTags), 
+                sequence: function() {
+                    if(isMainlineOrExperimentalTagOrReleaseRevision(a)) {
+                        return findSequenceByVersion(a.version, allTags)
+                    } else {
+                        return a.parentObj.sequence
+                    }
+                }(), 
                 from: getReleaseTagFromLevel(a, c), 
                 to: getReleaseTagToLevel(a, c),
                 maturityLevel: extractMaturityLevel(a.version)
