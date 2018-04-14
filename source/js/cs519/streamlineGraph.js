@@ -222,7 +222,9 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         var maturityLevel = ""
         if(version.indexOf('/') != -1) {
             versionSplitArr = version.split('/')
-            maturityLevel = versionSplitArr[0]
+            maturityLevel = versionSplitArr[0].toUpperCase()
+            if (maturityLevel == 'RELEASECANDIDATE') 
+                maturityLevel = 'RC'
         }
         return maturityLevel
     }
