@@ -58,7 +58,7 @@ var isZeroTag = function(obj) {
     return obj.version == "0" || obj.version == "x.0" || obj.version == "x.x.0"
       || obj.version == "X.0" || obj.version == "X.X.0"
 }
-var isMainlineOrExperimentalTag = function(obj) {
+var isMainlineOrExperimentalTagOrReleaseRevision = function(obj) {
     return /x\.\d+/i.test(obj.version) || /^\d+$/.test(obj.version)
         || /\/x\.\d+/i.test(obj.version) || /\/^\d+$/.test(obj.version)
 }
@@ -85,7 +85,8 @@ var combineParsedTrees = function(tree1, tree2) {
         experimentalBranches : tree1.experimentalBranches.concat(tree2.experimentalBranches),
         experimentalTags : tree1.experimentalTags.concat(tree2.experimentalTags),
         releaseBranches : tree1.releaseBranches.concat(tree2.releaseBranches),
-        releaseTags : tree1.releaseTags.concat(tree2.releaseTags)
+        releaseTags : tree1.releaseTags.concat(tree2.releaseTags),
+        releaseRevisions : tree1.releaseRevisions.concat(tree2.releaseRevisions),
     }
     return resultObj
 }
@@ -97,7 +98,8 @@ var defaultParsedTree = {
     experimentalBranches : [],
     experimentalTags : [],
     releaseBranches : [],
-    releaseTags : []
+    releaseTags : [],
+    releaseRevisions : []
 }
 
 function parseArtifactTree ( artifactTree, parentObj ) {
@@ -111,11 +113,13 @@ function parseArtifactTree ( artifactTree, parentObj ) {
     
     if(isZeroTag(artifactTreeObj)) {
         parsedArtifactTree.zeroTagVersion = artifactTreeObj.version
-    } else if (isMainlineOrExperimentalTag(artifactTreeObj)) {
+    } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifactTreeObj)) {
         if(!$.isEmptyObject(parsedArtifactTree.experimentalBranches)) {
             parsedArtifactTree.experimentalTags = addTag(parsedArtifactTree.experimentalTags, artifactTreeObj)
         } else if( !$.isEmptyObject(parsedArtifactTree.releaseBranches) ) {
             parsedArtifactTree.releaseTags = addTag(parsedArtifactTree.releaseTags, artifactTreeObj)
+        } else if (isReleaseBranch(parentObj)) {
+            parsedArtifactTree.releaseRevisions = addTag(parsedArtifactTree.releaseRevisions, artifactTreeObj)
         } else if ( !isMainlineBranch(parentObj) && !isZeroTag(parentObj) ) {
             parsedArtifactTree.experimentalTags = addTag(parsedArtifactTree.experimentalTags, artifactTreeObj)
         } else {
@@ -151,15 +155,17 @@ function parseArtifactTreeArr ( arr, parentObj ) {
                 return parsedTree1
         });
     } else {
-        return {
-            zeroTagVersion : '',
-            mainlineBranch : {},
-            mainlineTags : [],
-            experimentalBranches : [],
-            experimentalTags : [],
-            releaseBranches : [],
-            releaseTags : []
-        }
+        return defaultParsedTree
+        //{
+            //zeroTagVersion : '',
+            //mainlineBranch : {},
+            //mainlineTags : [],
+            //experimentalBranches : [],
+            //experimentalTags : [],
+            //releaseBranches : [],
+            //releaseTags : [],
+            //releaseRevisions : []
+        //}
     }
 }
 
@@ -190,6 +196,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .concat(parsedArtifactTree.mainlineTags)
         .concat(parsedArtifactTree.experimentalTags)
         .concat(parsedArtifactTree.releaseTags)
+        .concat(parsedArtifactTree.releaseRevisions)
         .sort( sortByTimestamp )
         .map( function( tag, i ) { tag.sequence = i + 1; return tag } )
         
@@ -345,6 +352,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                 }
             })
             return c.RELEASE_BRANCH_LEVELS[releaseBranchIndex]
+        } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
+            return c.RELEASE_REVISION_LEVEL
         }
     }
     var getReleaseTagToLevel = function(artifact, c) {
@@ -353,7 +362,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
             return c.RELEASE_TAG_LEVEL
-        } else if (isReleaseBranch(artifact.parentObj)) {
+        } else if (isReleaseBranch(artifact.parentObj) || isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
             releaseBranches.forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
                     releaseBranchIndex = i; return;
@@ -371,6 +380,13 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         }
     }
     
+    var getReleaseRevisionFromLevel = function(artifact, c) {
+        return c.RELEASE_BRANCH_LEVELS[0]
+    }
+    var getReleaseRevisionToLevel = function(artifact, c) {
+        return c.RELEASE_REVISION_LEVEL
+    }
+
     var mainlineTags = parsedArtifactTree.mainlineTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
@@ -418,7 +434,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .map ( function(a) { 
             return {
                 version: extractVersionNumber(a.version), 
-                sequence: findSequenceByVersion(a.version, allTags), 
+                sequence: findSequenceByVersion(isMainlineOrExperimentalTagOrReleaseRevision(a) ? a.version : a.parentObj.version, allTags), 
                 from: getReleaseTagFromLevel(a, c), 
                 to: getReleaseTagToLevel(a, c),
                 maturityLevel: extractMaturityLevel(a.version)
@@ -429,6 +445,22 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(releaseTags)
     }
 
+    var releaseRevisions = parsedArtifactTree.releaseRevisions
+        .sort( sortByTimestamp )
+        .map ( function(a) { 
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: findSequenceByVersion(a.version, allTags), 
+                from: getReleaseRevisionFromLevel(a, c), 
+                to: getReleaseRevisionToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
+    if(window.debug) {
+        console.log('releaseRevisions:')
+        console.log(releaseRevisions)
+    }
+
     var data = {}
     data.zeroTagVersion = zeroTagVersion
     data.mainlineBranch = mainlineBranch
@@ -437,6 +469,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.mainlineTags = mainlineTags
     data.experimentalTags = experimentalTags
     data.releaseTags = releaseTags
+    data.releaseRevisions = releaseRevisions
     
     return data;
 }
@@ -487,6 +520,7 @@ function generateVisualizationData(p) {
     var releaseBranches = p.releaseBranches
     var experimentalTags = p.experimentalTags
     var releaseTags = p.releaseTags
+    var releaseRevisions = p.releaseRevisions
 
     var branchConnectors = [], branchConnectorNodes = []
     var tagConnectors = [], tagConnectorNodes = []
@@ -634,6 +668,16 @@ function generateVisualizationData(p) {
         }))
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseTags.map(tagConnectorNodesMapping)))
         
+        tagConnectors = tagConnectors.concat(releaseRevisions.map(function(tag, i) {
+            return {
+                s:firstCol(i, tagConnectorNodes.length), 
+                t:secondCol(i, tagConnectorNodes.length), 
+                version: tag.version,
+                class: 'releaseTag'
+            }
+        }))
+        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseRevisions.map(tagConnectorNodesMapping)))
+        
         branchArrows = branchArrows.concat(releaseBranches.map(function(branch, i) {
             return {
                 s:firstCol(i, branchArrowNodes.length), 
@@ -714,6 +758,7 @@ function getLevelsConfiguration(paramsObj) {
         EXPERIMENTAL_BRANCH_TEST_LEVELS:[],
         EXPERIMENTAL_BRANCH_USER_LEVELS:[],
         RELEASE_TAG_LEVEL:              0,
+        RELEASE_REVISION_LEVEL:         0,
         RELEASE_BRANCH_LEVELS:          [],
         RELEASE_BRANCH_TEST_LEVELS:     [],
         RELEASE_BRANCH_USER_LEVELS:     [],
@@ -769,6 +814,7 @@ function getLevelsConfiguration(paramsObj) {
         if(displayReleaseBranches) {
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 levelsCounter++;
+                resultObj.RELEASE_REVISION_LEVEL = levelsCounter
                 resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
@@ -807,6 +853,7 @@ function getLevelsConfiguration(paramsObj) {
         }
         paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
         ++levelsCounter
+        resultObj.RELEASE_REVISION_LEVEL = ++levelsCounter
         if(displayReleaseBranches) {
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
@@ -841,6 +888,7 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
             paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            resultObj.RELEASE_REVISION_LEVEL = ++levelsCounter
             ++levelsCounter
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
@@ -956,6 +1004,7 @@ function streamlineGraph() {
         var mainlineTags = d.mainlineTags
         var experimentalTags = d.experimentalTags
         var releaseTags = d.releaseTags
+        var releaseRevisions = d.releaseRevisions
         
         var options = {
             'snapshotOnSeparateLevel':        snapshotOnSeparateLevel,
@@ -979,6 +1028,7 @@ function streamlineGraph() {
             'mainlineTags' :                  mainlineTags,
             'experimentalTags' :              experimentalTags,
             'releaseTags' :                   releaseTags,
+            'releaseRevisions' :              releaseRevisions,
         }
         
         var data = generateVisualizationData(options)
