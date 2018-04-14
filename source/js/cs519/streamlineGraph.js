@@ -1071,11 +1071,13 @@ function streamlineGraph() {
 //            svg.selectAll('.releaseTag').style('visibility', 'hidden')
             $('.releaseBranch').hide()
             $('.releaseTag').hide()
+            $('.releaseRevision').hide()
         } else {
 //            svg.selectAll('.releaseBranch').style('visibility', 'visible')
 //            svg.selectAll('.releaseTag').style('visibility', 'visible')
             $('.releaseBranch').delay(1000).show(0)
             $('.releaseTag').delay(1000).show(0)
+            $('.releaseRevision').delay(1000).show(0)
         }
         if(!maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
