@@ -386,7 +386,15 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     }
     
     var getReleaseRevisionFromLevel = function(artifact, c) {
-        return c.RELEASE_BRANCH_LEVELS[0]
+        var releaseBranchIndex = 0 
+        if (isReleaseBranch(artifact.parentObj)) {
+            releaseBranches.forEach(function(releaseBranch, i) {
+                if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
+                    releaseBranchIndex = i; return;
+                }
+            })
+            return c.RELEASE_BRANCH_LEVELS[releaseBranchIndex]
+        }
     }
     var getReleaseRevisionToLevel = function(artifact, c) {
         return c.RELEASE_REVISION_LEVEL
