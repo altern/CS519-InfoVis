@@ -53,8 +53,10 @@ function addBranch (list, branch) {
 }
 
 var isZeroTag = function(obj) {
-    return obj.version == "0.x.x" || obj.version == "0.x" || obj.version == "0"
-        || obj.version == "0.X.X" || obj.version == "0.X" 
+    //return obj.version == "0.x.x" || obj.version == "0.x" || obj.version == "0"
+        //|| obj.version == "0.X.X" || obj.version == "0.X" 
+    return obj.version == "0" || obj.version == "x.0" || obj.version == "x.x.0"
+      || obj.version == "X.0" || obj.version == "X.X.0"
 }
 var isMainlineOrExperimentalTag = function(obj) {
     return /x\.\d+/i.test(obj.version) || /^\d+$/.test(obj.version)
