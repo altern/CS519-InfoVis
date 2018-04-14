@@ -673,7 +673,7 @@ function generateVisualizationData(p) {
                 s:firstCol(i, tagConnectorNodes.length), 
                 t:secondCol(i, tagConnectorNodes.length), 
                 version: tag.version,
-                class: 'releaseTag'
+                class: 'releaseRevision'
             }
         }))
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseRevisions.map(tagConnectorNodesMapping)))
