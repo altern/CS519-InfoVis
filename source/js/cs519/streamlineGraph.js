@@ -62,6 +62,9 @@ var isMainlineOrExperimentalTagOrReleaseRevision = function(obj) {
     return /x\.\d+/i.test(obj.version) || /^\d+$/.test(obj.version)
         || /\/x\.\d+/i.test(obj.version) || /\/^\d+$/.test(obj.version)
 }
+var isReleaseRevision = function(obj) {
+    return isMainlineOrExperimentalTagOrReleaseRevision(obj) && isReleaseBranch(obj.parentObj)
+}
 var isMainlineOrExperimentalBranch = function(obj) {
     return obj.version == "x.x" || obj.version == "x"
         || obj.version == "X.X" || obj.version == "X"
@@ -197,6 +200,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .concat(parsedArtifactTree.releaseTags)
         .concat(parsedArtifactTree.releaseRevisions)
         .sort( sortByTimestamp )
+        .filter(function(tag) { return !isReleaseTag(tag)})
         .map( function( tag, i ) { tag.sequence = i + 1; return tag } )
         
     var findSequenceByVersion = function(version, allTags) {
