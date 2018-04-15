@@ -358,6 +358,11 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
             })
             return c.RELEASE_BRANCH_LEVELS[releaseBranchIndex]
         } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
+            releaseBranches.forEach(function(releaseBranch, i) {
+                if(releaseBranch.version == artifact.parentObj.parentObj.version && releaseBranch.name == artifact.parentObj.parentObj.name) {
+                    releaseBranchIndex = i; return;
+                }
+            })
             return c.RELEASE_REVISION_LEVELS[releaseBranchIndex]
         }
     }
@@ -367,9 +372,9 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
             return c.RELEASE_TAG_LEVEL
-        } else if (isReleaseBranch(artifact.parentObj) || isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
+        } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
             releaseBranches.forEach(function(releaseBranch, i) {
-                if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
+                if(releaseBranch.version == artifact.parentObj.parentObj.version && releaseBranch.name == artifact.parentObj.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
             })
@@ -382,7 +387,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                 default    : toLevel = c.RELEASE_BRANCH_TEST_LEVELS[releaseBranchIndex];      break;
             }
             return toLevel
-        }
+        } 
     }
     
     var getReleaseRevisionFromLevel = function(artifact, c) {
@@ -398,7 +403,14 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     }
     var getReleaseRevisionToLevel = function(artifact, c) {
         var releaseBranchIndex = 0 
-        return c.RELEASE_REVISION_LEVELS[releaseBranchIndex]
+        if (isReleaseBranch(artifact.parentObj)) {
+            releaseBranches.forEach(function(releaseBranch, i) {
+                if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
+                    releaseBranchIndex = i; return;
+                }
+            })
+            return c.RELEASE_REVISION_LEVELS[releaseBranchIndex]
+        }
     }
 
     var mainlineTags = parsedArtifactTree.mainlineTags
@@ -678,16 +690,6 @@ function generateVisualizationData(p) {
 
     
     if(displayReleaseBranches) {        
-        tagConnectors = tagConnectors.concat(releaseTags.map(function(tag, i) {
-            return {
-                s:firstCol(i, tagConnectorNodes.length), 
-                t:secondCol(i, tagConnectorNodes.length), 
-                version: tag.version,
-                class: 'releaseTag'
-            }
-        }))
-        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseTags.map(tagConnectorNodesMapping)))
-        
         tagConnectors = tagConnectors.concat(releaseRevisions.map(function(tag, i) {
             return {
                 s:firstCol(i, tagConnectorNodes.length), 
@@ -697,6 +699,16 @@ function generateVisualizationData(p) {
             }
         }))
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseRevisions.map(tagConnectorNodesMapping)))
+        
+        tagConnectors = tagConnectors.concat(releaseTags.map(function(tag, i) {
+            return {
+                s:firstCol(i, tagConnectorNodes.length), 
+                t:secondCol(i, tagConnectorNodes.length), 
+                version: tag.version,
+                class: 'releaseTag'
+            }
+        }))
+        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseTags.map(tagConnectorNodesMapping)))
         
         branchArrows = branchArrows.concat(releaseBranches.map(function(branch, i) {
             return {
@@ -833,9 +845,8 @@ function getLevelsConfiguration(paramsObj) {
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
         if(displayReleaseBranches) {
             while (paramsObj.numberOfReleaseBranches-- > 0) {
-                if(displayReleaseBranches)
-                    resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
                 levelsCounter++;
+                resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
@@ -872,10 +883,14 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
         }
-        paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-        resultObj.RELEASE_REVISION_LEVELS.push(++levelsCounter)
         ++levelsCounter
         if(displayReleaseBranches) {
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
+            }
+            ++levelsCounter
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
@@ -909,7 +924,11 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
             paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-            resultObj.RELEASE_REVISION_LEVELS.push(++levelsCounter)
+            ++levelsCounter
+            while (paramsObj.numberOfReleaseBranches-- > 0) {
+                resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
+            }
+            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
             ++levelsCounter
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
@@ -1332,7 +1351,7 @@ function streamlineGraph() {
         var transformTag = function(d) { 
             return "translate(" + (tagConnectorNodes[d.t].x - tagTextMargin) + ", " + (tagConnectorNodes[d.t].y ) + ")"
         }
-        
+       
         var tagGroupEnter = svg.selectAll('.tagGroup').data(tagConnectors).enter()
             .append("g")
             .attr('class', function(d) { return 'tagGroup ' + d.class })
