@@ -23,6 +23,7 @@ var getValues = function() {
         'nodeArrows': $('input[name=nodeArrows]').is(':checked'),
         'maturityLevels': $('input[name=maturityLevels]').is(':checked'),
         'experimentalBranches': $('input[name=experimentalBranches]').is(':checked'),
+        'supportBranches': $('input[name=supportBranches]').is(':checked'),
         'releaseBranches': $('input[name=releaseBranches]').is(':checked'),
     }
 }
@@ -72,6 +73,8 @@ var drawChart = function(valueObj) {
         chart.maturityLevels(valueObj.maturityLevels)
     if(chart['experimentalBranches'] != undefined) 
         chart.experimentalBranches(valueObj.experimentalBranches)
+    if(chart['supportBranches'] != undefined) 
+        chart.supportBranches(valueObj.supportBranches)
     if(chart['releaseBranches'] != undefined) 
         chart.releaseBranches(valueObj.releaseBranches)
     if(chart['parentDOMElement'] != undefined) 
@@ -220,6 +223,7 @@ $(document).ready( function() {
     $('input[name=nodeArrows]').on('change', updateGraph)
     $('input[name=maturityLevels]').on('change', updateGraph)
     $('input[name=experimentalBranches]').on('change', updateGraph)
+    $('input[name=supportBranches]').on('change', updateGraph)
     $('input[name=releaseBranches]').on('change', updateGraph)
     
     selectChartType();

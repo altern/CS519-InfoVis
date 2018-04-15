@@ -102,7 +102,7 @@ var combineParsedTrees = function(tree1, tree2) {
         releaseBranches : tree1.releaseBranches.concat(tree2.releaseBranches),
         releaseTags : tree1.releaseTags.concat(tree2.releaseTags),
         releaseRevisions : tree1.releaseRevisions.concat(tree2.releaseRevisions),
-        supportBranches : tree1.releaseRevisions.concat(tree2.supportBranches),
+        supportBranches : tree1.supportBranches.concat(tree2.supportBranches)
     }
     return resultObj
 }
@@ -117,7 +117,7 @@ var defaultParsedTree = {
     releaseBranches : [],
     releaseTags : [],
     releaseRevisions : [],
-    supportBranches : [], 
+    supportBranches : [] 
 }
 
 function parseArtifactTree ( artifactTree, parentObj ) {
@@ -174,21 +174,23 @@ function parseArtifactTreeArr ( arr, parentObj ) {
                 return parsedTree1
         });
     } else {
-        return defaultParsedTree
-        /*return {
+        return {
             zeroTagVersion : '',
             mainlineBranch : {},
             mainlineTags : [],
             experimentalBranches : [],
             experimentalTags : [],
+            supportTags : [],
             releaseBranches : [],
             releaseTags : [],
-            releaseRevisions : []
-        }*/
+            releaseRevisions : [],
+            supportBranches : [] 
+        }
     }
 }
 
 function generateDataFromArtifactTree ( artifactTree, p ) {
+    
     
     var parsedArtifactTree = parseArtifactTree(artifactTree, {})
     if(window.debug) {
@@ -987,9 +989,18 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(levelsCounter)
             }
         }
+        var numberOfSupportBranches = paramsObj.numberOfSupportBranches;
+        if(displaySupportBranches) {
+            while (paramsObj.numberOfSupportBranches-- > 0) {
+                levelsCounter++;
+                resultObj.SUPPORT_BRANCH_LEVELS.push(levelsCounter)
+            }
+        }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
         if(displayExperimentalBranches) 
             resultObj.EXPERIMENTAL_TAG_LEVEL = ++levelsCounter;
+        if(displaySupportBranches)
+            resultObj.SUPPORT_TAG_LEVEL = levelsCounter
         resultObj.MAINLINE_LEVEL = levelsCounter;
         if(displayReleaseBranches)
             resultObj.RELEASE_TAG_LEVEL = levelsCounter;
@@ -1018,9 +1029,18 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.EXPERIMENTAL_BRANCH_USER_LEVELS.push(numberOfExperimentalBranches + getExperimentalLevel('USER', (paramsObj.numberOfExperimentalBranches), paramsObj))
             }
         }
+        var numberOfSupportBranches = paramsObj.numberOfSupportBranches;
+        if(displaySupportBranches) {
+            while (paramsObj.numberOfSupportBranches-- > 0) {
+                levelsCounter++;
+                resultObj.SUPPORT_BRANCH_LEVELS.push(levelsCounter)
+            }
+        }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
         if(displayExperimentalBranches)
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
+        if(displaySupportBranches)
+            resultObj.SUPPORT_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
         if(displayReleaseBranches) {
             resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
