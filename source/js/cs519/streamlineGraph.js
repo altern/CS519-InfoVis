@@ -64,6 +64,9 @@ var isMainlineOrExperimentalTagOrReleaseRevision = function(obj) {
         || /^.*\/x\.x\.\d+$/i.test(obj.version) 
         || /^x\.x\.\d+$/i.test(obj.version) 
 }
+var isSnapshotRevision = function(obj) {
+    return isMainlineOrExperimentalTagOrReleaseRevision(obj) && isSnapshotBranch(obj.parentObj)
+}
 var isReleaseRevision = function(obj) {
     return isMainlineOrExperimentalTagOrReleaseRevision(obj) && isReleaseBranch(obj.parentObj)
 }
@@ -90,6 +93,10 @@ var isReleaseBranch = function(obj, childArr) {
 var isSupportBranch = function(obj) {
     return /^\d+\.x\.x$/i.test(obj.version)
 }
+var isSupportSnapshot = function(obj) {
+    return /^\d+\.x\.\d+$/i.test(obj.version)
+        || /^.*\/\d+\.x\.\d+$/i.test(obj.version)
+}
 
 var combineParsedTrees = function(tree1, tree2) {
     var resultObj = {
@@ -102,7 +109,9 @@ var combineParsedTrees = function(tree1, tree2) {
         releaseBranches : tree1.releaseBranches.concat(tree2.releaseBranches),
         releaseTags : tree1.releaseTags.concat(tree2.releaseTags),
         releaseRevisions : tree1.releaseRevisions.concat(tree2.releaseRevisions),
-        supportBranches : tree1.supportBranches.concat(tree2.supportBranches)
+        supportBranches : tree1.supportBranches.concat(tree2.supportBranches),
+        supportSnapshots : tree1.supportSnapshots.concat(tree2.supportSnapshots),
+        supportRevisions : tree1.supportRevisions.concat(tree2.supportRevisions)
     }
     return resultObj
 }
@@ -117,7 +126,9 @@ var defaultParsedTree = {
     releaseBranches : [],
     releaseTags : [],
     releaseRevisions : [],
-    supportBranches : [] 
+    supportBranches : [] ,
+    supportSnapshots : [],
+    supportRevisions : []
 }
 
 function parseArtifactTree ( artifactTree, parentObj ) {
@@ -140,6 +151,8 @@ function parseArtifactTree ( artifactTree, parentObj ) {
             parsedArtifactTree.supportTags = addTag(parsedArtifactTree.supportTags, artifactTreeObj)
         } else if (isReleaseBranch(parentObj)) {
             parsedArtifactTree.releaseRevisions = addTag(parsedArtifactTree.releaseRevisions, artifactTreeObj)
+        } else if(isSupportBranch(parentObj)) {
+            parsedArtifactTree.supportRevisions = addTag(parsedArtifactTree.supportRevisions, artifactTreeObj)
         } else if ( !isMainlineBranch(parentObj) && !isZeroTag(parentObj) ) {
             parsedArtifactTree.experimentalTags = addTag(parsedArtifactTree.experimentalTags, artifactTreeObj)
         } else {
@@ -155,7 +168,9 @@ function parseArtifactTree ( artifactTree, parentObj ) {
         parsedArtifactTree.releaseTags = addTag(parsedArtifactTree.releaseTags, artifactTreeObj)
     } else if (isReleaseBranch(artifactTreeObj)) {
         parsedArtifactTree.releaseBranches = addTag(parsedArtifactTree.releaseBranches, artifactTreeObj)
-    }     
+    } else if (isSupportSnapshot(artifactTreeObj)) {
+        parsedArtifactTree.supportSnapshots = addTag(parsedArtifactTree.supportSnapshots, artifactTreeObj)
+    }      
     return parsedArtifactTree
 }
 
@@ -174,6 +189,7 @@ function parseArtifactTreeArr ( arr, parentObj ) {
                 return parsedTree1
         });
     } else {
+        //return defaultParsedTree
         return {
             zeroTagVersion : '',
             mainlineBranch : {},
@@ -184,7 +200,9 @@ function parseArtifactTreeArr ( arr, parentObj ) {
             releaseBranches : [],
             releaseTags : [],
             releaseRevisions : [],
-            supportBranches : [] 
+            supportBranches : [] ,
+            supportSnapshots: [],
+            supportRevisions: []
         }
     }
 }
@@ -219,8 +237,10 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .concat(parsedArtifactTree.supportTags)
         .concat(parsedArtifactTree.releaseTags)
         .concat(parsedArtifactTree.releaseRevisions)
+        .concat(parsedArtifactTree.supportSnapshots)
+        .concat(parsedArtifactTree.supportRevisions)
         .sort( sortByTimestamp )
-        .filter(function(tag) { return !isReleaseTag(tag)})
+        .filter(function(tag) { return !isReleaseTag(tag) && !isSupportSnapshot(tag)})
         .map( function( tag, i ) { tag.sequence = i + 1; return tag } )
         
     var findSequenceByVersion = function(version, allTags) {
@@ -294,6 +314,35 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(supportBranches)
     }
 
+    var supportSnapshots = parsedArtifactTree.supportSnapshots
+        .sort( sortByTimestamp )
+        .map(function(a, i ) {
+                return {
+                    version: extractVersionNumber(a.version), 
+                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
+                    name: a.name
+                } 
+            })
+    if(window.debug) {
+        console.log('supportSnapshots:')
+        console.log(supportSnapshots)
+    }
+
+    var supportRevisions = parsedArtifactTree.supportRevisions
+        .sort( sortByTimestamp )
+        .map(function(a, i ) {
+                return {
+                    version: extractVersionNumber(a.version), 
+                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
+
+                    name: a.name
+                } 
+            })
+    if(window.debug) {
+        console.log('supportRevisions:')
+        console.log(supportRevisions)
+    }
+
     // zeroTagVersion = "0.x.x"
 
     // mainlineBranch = {version: "x.x", name: "trunk"}
@@ -347,22 +396,71 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         // {version: "1.3", sequence: 12, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
         // {version: "2.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
     // ]
+    var getSupportRevisionFromLevel = function(artifact, c) {
+        var supportBranchIndex = 0 
+        if (isSupportBranch(artifact.parentObj)) {
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
+                }
+            })
+            return c.SUPPORT_BRANCH_LEVELS[supportBranchIndex]
+        }
+    }
+    var getSupportRevisionToLevel = function(artifact, c) {
+        var supportBranchIndex = 0 
+        if (isReleaseBranch(artifact.parentObj)) {
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
+                }
+            })
+            //return c.RELEASE_REVISION_LEVELS[supportBranchIndex]
+        }
+        return c.RELEASE_TAG_LEVEL
+    }
+
+    var getSupportSnapshotFromLevel = function(artifact, c) {
+        return c.SUPPORT_TAG_LEVEL
+    }
+    var getSupportSnapshotToLevel = function(artifact, c) {
+        var supportBranchIndex = 0;
+        var maturityLevel = ""
+        var toLevel = 0
+        if(isMainlineBranch(artifact.parentObj)) {
+            return c.SUPPORT_TAG_LEVEL
+        } else if (isSupportBranch(artifact.parentObj.parentObj)) {
+            /*supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.parentObj.version && supportBranch.name == artifact.parentObj.parentObj.name) {
+                    supportBranchIndex = i; return;
+                }
+            })*/
+            maturityLevel = extractMaturityLevel(artifact.version)
+            switch(maturityLevel) {
+                case "DEV": toLevel = c.MAINLINE_DEV_LEVEL; break;
+                case "TEST": toLevel = c.MAINLINE_TEST_LEVEL; break;
+                case "USER": toLevel = c.MAINLINE_TEST_LEVEL; break;
+                default: toLevel = c.MAINLINE_DEV_LEVEL; break;
+            }
+            return toLevel
+        }
+    }
 
     var getSupportTagFromLevel = function(artifact, c) {
-        var experimentalBranchIndex = 0;
+        var supportBranchIndex = 0;
         if(isMainlineBranch(artifact.parentObj)) {
             return c.MAINLINE_LEVEL
         } else if (isMainlineOrExperimentalBranch(artifact.parentObj)) {
-            experimentalBranches.forEach(function(experimentalBranch, i) {
-                if(experimentalBranch.version == artifact.parentObj.version && experimentalBranch.name == artifact.parentObj.name) {
-                    experimentalBranchIndex = i; return;
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
                 }
             })
-            return c.SUPPORT_BRANCH_LEVELS[experimentalBranchIndex]
+            return c.SUPPORT_BRANCH_LEVELS[supportBranchIndex]
         }
     }
     var getSupportTagToLevel = function(artifact, c) {
-        var experimentalBranchIndex = 0;
+        var supportBranchIndex = 0;
         var maturityLevel = ""
         var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
@@ -532,13 +630,52 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                 version: extractVersionNumber(a.version), 
                 sequence: findSequenceByVersion(a.version, allTags), 
                 from: getSupportTagFromLevel(a, c), 
-                to: getExperimentalTagToLevel(a, c),
+                to: getSupportTagToLevel(a, c),
                 maturityLevel: extractMaturityLevel(a.version)
             } 
         })
     if(window.debug) {
         console.log('supportTags:')
         console.log(supportTags)
+    }
+    
+    var supportSnapshots = parsedArtifactTree.supportSnapshots
+        .sort( sortByTimestamp )
+        .map ( function(a) { 
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: function() {
+                    if(isMainlineOrExperimentalTagOrReleaseRevision(a)) {
+                        return findSequenceByVersion(a.version, allTags)
+                    } else {
+                        return a.parentObj.sequence
+                    }
+                }(), 
+                //sequence: findSequenceByVersion(a.version, allTags), 
+                from: getSupportSnapshotFromLevel(a, c), 
+                to: getSupportSnapshotToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
+    if(window.debug) {
+        console.log('supportSnapshots:')
+        console.log(supportSnapshots)
+    }
+    
+    var supportRevisions = parsedArtifactTree.supportRevisions
+        .sort( sortByTimestamp )
+        .map ( function(a) { 
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: findSequenceByVersion(a.version, allTags), 
+                from: getSupportRevisionFromLevel(a, c), 
+                to: getSupportRevisionToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
+    if(window.debug) {
+        console.log('supportRevisions:')
+        console.log(supportRevisions)
     }
     
     var releaseTags = parsedArtifactTree.releaseTags
@@ -588,6 +725,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.mainlineTags = mainlineTags
     data.experimentalTags = experimentalTags
     data.supportTags = supportTags
+    data.supportSnapshots = supportSnapshots
+    data.supportRevisions = supportRevisions
     data.releaseTags = releaseTags
     data.releaseRevisions = releaseRevisions
     
@@ -606,6 +745,8 @@ function generateVisualizationData(p) {
             experimentalBranches:           [],
             releaseBranches:                [],
             supportBranches:                [],
+            supportSnapshots:               [],
+            supportRevisions:               [],
             xRightMargin:                   0,
             xLeftMargin:                    0,
             tagTextMargin:                  0,
@@ -644,6 +785,8 @@ function generateVisualizationData(p) {
     var supportBranches = p.supportBranches
     var experimentalTags = p.experimentalTags
     var supportTags = p.supportTags
+    var supportSnapshots = p.supportSnapshots
+    var supportRevisions = p.supportRevisions
     var releaseTags = p.releaseTags
     var releaseRevisions = p.releaseRevisions
 
@@ -682,12 +825,34 @@ function generateVisualizationData(p) {
     }
     
     if(displaySupportBranches) {
+        tagConnectors = tagConnectors.concat(supportRevisions.map(function(tag, i) {
+            return {
+                s:firstCol(i, tagConnectorNodes.length), 
+                t:secondCol(i, tagConnectorNodes.length), 
+                version: tag.version,    
+                class: 'supportRevision'
+            }
+        }))
+        
+        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], supportRevisions.map(tagConnectorNodesMapping)))
+        
+        tagConnectors = tagConnectors.concat(supportSnapshots.map(function(tag, i) {
+            return {
+                s:firstCol(i, tagConnectorNodes.length), 
+                t:secondCol(i, tagConnectorNodes.length), 
+                version: tag.version,    
+                class: 'supportSnapshot'
+            }
+        }))
+        
+        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], supportSnapshots.map(tagConnectorNodesMapping)))
+        
         tagConnectors = tagConnectors.concat(supportTags.map(function(tag, i) {
             return {
                 s:firstCol(i, tagConnectorNodes.length), 
                 t:secondCol(i, tagConnectorNodes.length), 
                 version: tag.version,    
-                class: 'supportTag'
+                class: 'supportSnapshot'
             }
         }))
         
@@ -939,6 +1104,9 @@ function getLevelsConfiguration(paramsObj) {
         EXPERIMENTAL_TAG_LEVEL:         0,
         SUPPORT_TAG_LEVEL:              0,
         SUPPORT_BRANCH_LEVELS:          [],
+        SUPPORT_BRANCH_DEV_LEVELS:      [],
+        SUPPORT_BRANCH_TEST_LEVELS:     [],
+        SUPPORT_BRANCH_USER_LEVELS:     [],
         EXPERIMENTAL_BRANCH_LEVELS:     [],
         EXPERIMENTAL_BRANCH_DEV_LEVELS: [],
         EXPERIMENTAL_BRANCH_TEST_LEVELS:[],
@@ -1229,6 +1397,8 @@ function streamlineGraph() {
         var mainlineTags = d.mainlineTags
         var experimentalTags = d.experimentalTags
         var supportTags = d.supportTags
+        var supportSnapshots = d.supportSnapshots
+        var supportRevisions = d.supportRevisions
         var releaseTags = d.releaseTags
         var releaseRevisions = d.releaseRevisions
         
@@ -1257,6 +1427,8 @@ function streamlineGraph() {
             'mainlineTags' :                  mainlineTags,
             'experimentalTags' :              experimentalTags,
             'supportTags' :                   supportTags,
+            'supportSnapshots' :              supportSnapshots,
+            'supportRevisions' :              supportRevisions,
             'releaseTags' :                   releaseTags,
             'releaseRevisions' :              releaseRevisions,
         }
