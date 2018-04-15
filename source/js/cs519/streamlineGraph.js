@@ -358,7 +358,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
             })
             return c.RELEASE_BRANCH_LEVELS[releaseBranchIndex]
         } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
-            return c.RELEASE_REVISION_LEVEL
+            return c.RELEASE_REVISION_LEVELS[releaseBranchIndex]
         }
     }
     var getReleaseTagToLevel = function(artifact, c) {
@@ -397,7 +397,8 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         }
     }
     var getReleaseRevisionToLevel = function(artifact, c) {
-        return c.RELEASE_REVISION_LEVEL
+        var releaseBranchIndex = 0 
+        return c.RELEASE_REVISION_LEVELS[releaseBranchIndex]
     }
 
     var mainlineTags = parsedArtifactTree.mainlineTags
@@ -777,7 +778,7 @@ function getLevelsConfiguration(paramsObj) {
         EXPERIMENTAL_BRANCH_TEST_LEVELS:[],
         EXPERIMENTAL_BRANCH_USER_LEVELS:[],
         RELEASE_TAG_LEVEL:              0,
-        RELEASE_REVISION_LEVEL:         0,
+        RELEASE_REVISION_LEVELS:        [],
         RELEASE_BRANCH_LEVELS:          [],
         RELEASE_BRANCH_TEST_LEVELS:     [],
         RELEASE_BRANCH_USER_LEVELS:     [],
@@ -832,8 +833,9 @@ function getLevelsConfiguration(paramsObj) {
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
         if(displayReleaseBranches) {
             while (paramsObj.numberOfReleaseBranches-- > 0) {
+                if(displayReleaseBranches)
+                    resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
                 levelsCounter++;
-                resultObj.RELEASE_REVISION_LEVEL = levelsCounter
                 resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
@@ -871,8 +873,8 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+        resultObj.RELEASE_REVISION_LEVELS.push(++levelsCounter)
         ++levelsCounter
-        resultObj.RELEASE_REVISION_LEVEL = ++levelsCounter
         if(displayReleaseBranches) {
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
@@ -907,7 +909,7 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
             paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-            resultObj.RELEASE_REVISION_LEVEL = ++levelsCounter
+            resultObj.RELEASE_REVISION_LEVELS.push(++levelsCounter)
             ++levelsCounter
             while (paramsObj.numberOfReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
