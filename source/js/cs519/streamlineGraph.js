@@ -439,7 +439,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
             switch(maturityLevel) {
                 case "DEV": toLevel = c.MAINLINE_DEV_LEVEL; break;
                 case "TEST": toLevel = c.MAINLINE_TEST_LEVEL; break;
-                case "USER": toLevel = c.MAINLINE_TEST_LEVEL; break;
+                case "USER": toLevel = c.MAINLINE_USER_LEVEL; break;
                 default: toLevel = c.MAINLINE_DEV_LEVEL; break;
             }
             return toLevel
