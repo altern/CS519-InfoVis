@@ -368,17 +368,17 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         if(isMainlineBranch(artifact.parentObj)) {
             return c.SUPPORT_TAG_LEVEL
         } else if (isMainlineOrExperimentalBranch(artifact.parentObj)) {
-            experimentalBranches.forEach(function(experimentalBranch, i) {
-                if(experimentalBranch.version == artifact.parentObj.version && experimentalBranch.name == artifact.parentObj.name) {
-                    experimentalBranchIndex = i; return;
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
                 }
             })
             maturityLevel = extractMaturityLevel(artifact.version)
             switch(maturityLevel) {
-                case "DEV": toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[experimentalBranchIndex]; break;
-                case "TEST": toLevel = c.EXPERIMENTAL_BRANCH_TEST_LEVELS[experimentalBranchIndex]; break;
-                case "USER": toLevel = c.EXPERIMENTAL_BRANCH_USER_LEVELS[experimentalBranchIndex]; break;
-                default: toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[experimentalBranchIndex]; break;
+                case "DEV": toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[supportBranchIndex]; break;
+                case "TEST": toLevel = c.EXPERIMENTAL_BRANCH_TEST_LEVELS[supportBranchIndex]; break;
+                case "USER": toLevel = c.EXPERIMENTAL_BRANCH_USER_LEVELS[supportBranchIndex]; break;
+                default: toLevel = c.EXPERIMENTAL_BRANCH_DEV_LEVELS[supportBranchIndex]; break;
             }
             return toLevel
         }
@@ -997,9 +997,9 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(displayExperimentalBranches) 
+        //if(displayExperimentalBranches) 
             resultObj.EXPERIMENTAL_TAG_LEVEL = ++levelsCounter;
-        if(displaySupportBranches)
+        //if(displaySupportBranches)
             resultObj.SUPPORT_TAG_LEVEL = levelsCounter
         resultObj.MAINLINE_LEVEL = levelsCounter;
         if(displayReleaseBranches)
@@ -1037,9 +1037,9 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(displayExperimentalBranches)
+        //if(displayExperimentalBranches)
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
-        if(displaySupportBranches)
+        //if(displaySupportBranches)
             resultObj.SUPPORT_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
         if(displayReleaseBranches) {
@@ -1090,9 +1090,9 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
-        if(displayExperimentalBranches) 
+        //if(displayExperimentalBranches) 
             resultObj.EXPERIMENTAL_TAG_LEVEL = levelsCounter;
-        if(displaySupportBranches) 
+        //if(displaySupportBranches) 
             resultObj.SUPPORT_TAG_LEVEL = levelsCounter;
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
         if(displayReleaseBranches)
