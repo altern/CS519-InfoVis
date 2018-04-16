@@ -155,6 +155,8 @@ function parseArtifactTree ( artifactTree, parentObj ) {
             parsedArtifactTree.supportRevisions = addTag(parsedArtifactTree.supportRevisions, artifactTreeObj)
         } else if ( !isMainlineBranch(parentObj) && !isZeroTag(parentObj) ) {
             parsedArtifactTree.experimentalTags = addTag(parsedArtifactTree.experimentalTags, artifactTreeObj)
+        } else if (artifactTreeArr[0]['value'] != undefined && isReleaseBranch(artifactTreeArr[0]['value'])) {
+            parsedArtifactTree.releaseTags = addTag(parsedArtifactTree.releaseTags, artifactTreeObj)
         } else {
             parsedArtifactTree.mainlineTags = addTag(parsedArtifactTree.mainlineTags, artifactTreeObj)
         }
@@ -1151,16 +1153,16 @@ function getLevelsConfiguration(paramsObj) {
         } 
         var supportLevel = numberOfSupportBranches + numberOfExperimentalBranches + experimentalTagLevel + mainlineLevel - supportBranchLevelOffset + mainlineMaturityLevelOffset
         if(window.debug) {
-            console.log("======START SUPPORT LEVEL DEBUG==========")
-            console.log('maturity = ' + maturity)
-            console.log('numberOfSupportBranches = ' + numberOfSupportBranches)
-            console.log('numberOfExperimentalBranches = ' + numberOfExperimentalBranches)
-            console.log('experimentalTagLevel = ' + experimentalTagLevel)
-            console.log('mainlineLevel = ' + mainlineLevel)
-            console.log('-supportBranchLevelOffset = ' + supportBranchLevelOffset)
-            console.log('mainlineMaturityLevelOffset = ' + mainlineMaturityLevelOffset)
-            console.log('TOTAL:' + supportLevel)
-            console.log('======END SUPPORT LEVEL DEBUG============')
+            //console.log("======START SUPPORT LEVEL DEBUG==========")
+            //console.log('maturity = ' + maturity)
+            //console.log('numberOfSupportBranches = ' + numberOfSupportBranches)
+            //console.log('numberOfExperimentalBranches = ' + numberOfExperimentalBranches)
+            //console.log('experimentalTagLevel = ' + experimentalTagLevel)
+            //console.log('mainlineLevel = ' + mainlineLevel)
+            //console.log('-supportBranchLevelOffset = ' + supportBranchLevelOffset)
+            //console.log('mainlineMaturityLevelOffset = ' + mainlineMaturityLevelOffset)
+            //console.log('TOTAL:' + supportLevel)
+            //console.log('======END SUPPORT LEVEL DEBUG============')
         }
         if(displayReleaseBranches || !maturityLevels) 
             supportLevel++;
