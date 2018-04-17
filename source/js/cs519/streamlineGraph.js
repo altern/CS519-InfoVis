@@ -107,6 +107,7 @@ var combineParsedTrees = function(tree1, tree2) {
         experimentalTags : tree1.experimentalTags.concat(tree2.experimentalTags),
         supportTags : tree1.supportTags.concat(tree2.supportTags),
         releaseBranches : tree1.releaseBranches.concat(tree2.releaseBranches),
+        supportReleaseBranches : tree1.supportReleaseBranches.concat(tree2.supportReleaseBranches),
         releaseTags : tree1.releaseTags.concat(tree2.releaseTags),
         releaseRevisions : tree1.releaseRevisions.concat(tree2.releaseRevisions),
         supportBranches : tree1.supportBranches.concat(tree2.supportBranches),
@@ -125,6 +126,7 @@ var defaultParsedTree = {
     experimentalTags : [],
     supportTags : [],
     releaseBranches : [],
+    supportReleaseBranches : [],
     releaseTags : [],
     releaseRevisions : [],
     supportBranches : [] ,
@@ -175,7 +177,11 @@ function parseArtifactTree ( artifactTree, parentObj ) {
     } else if (isReleaseTag(artifactTreeObj)) {
         parsedArtifactTree.releaseTags = addTag(parsedArtifactTree.releaseTags, artifactTreeObj)
     } else if (isReleaseBranch(artifactTreeObj)) {
-        parsedArtifactTree.releaseBranches = addTag(parsedArtifactTree.releaseBranches, artifactTreeObj)
+        if(parentObj.parentObj != undefined && isSupportBranch(parentObj.parentObj)) {
+            parsedArtifactTree.supportReleaseBranches = addTag(parsedArtifactTree.supportReleaseBranches, artifactTreeObj)
+        } else {
+            parsedArtifactTree.releaseBranches = addTag(parsedArtifactTree.releaseBranches, artifactTreeObj)
+        }
     } else if (isSupportSnapshot(artifactTreeObj)) {
         parsedArtifactTree.supportSnapshots = addTag(parsedArtifactTree.supportSnapshots, artifactTreeObj)
     }      
@@ -206,6 +212,7 @@ function parseArtifactTreeArr ( arr, parentObj ) {
             experimentalTags : [],
             supportTags : [],
             releaseBranches : [],
+            supportReleaseBranches : [],
             releaseTags : [],
             releaseRevisions : [],
             supportBranches : [] ,
@@ -310,6 +317,20 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(releaseBranches)
     }
     
+    var supportReleaseBranches = parsedArtifactTree.supportReleaseBranches
+        .sort( sortByTimestamp )
+        .map(function(a, i ) {
+                return {
+                    version: extractVersionNumber(a.version), 
+                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
+                    name: a.name
+                } 
+            })
+    if(window.debug) {
+        console.log('supportReleaseBranches:')
+        console.log(supportReleaseBranches)
+    }
+    
     var supportBranches = parsedArtifactTree.supportBranches
         .sort( sortByTimestamp )
         .map(function(a, i ) {
@@ -338,9 +359,12 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     // ]
 
     p.releaseBranches = releaseBranches
+    p.supportReleaseBranches = supportReleaseBranches
     p.supportBranches = supportBranches
     p.experimentalBranches = experimentalBranches
     p.numberOfReleaseBranches = ( releaseBranches.length )
+    p.numberOfAllReleaseBranches = ( releaseBranches.concat(supportReleaseBranches).length )
+    p.numberOfSupportReleaseBranches = ( supportReleaseBranches.length )
     p.numberOfSupportBranches = ( supportBranches.length )
     p.numberOfExperimentalBranches = ( experimentalBranches.length )
         
@@ -530,14 +554,14 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         if(isMainlineBranch(artifact.parentObj)) {
             return c.MAINLINE_LEVEL
         } else if (isReleaseBranch(artifact.parentObj)) {
-            releaseBranches.forEach(function(releaseBranch, i) {
+            releaseBranches.concat(supportReleaseBranches).forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
             })
             return c.RELEASE_BRANCH_LEVELS[releaseBranchIndex]
         } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
-            releaseBranches.forEach(function(releaseBranch, i) {
+            releaseBranches.concat(supportReleaseBranches).forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.parentObj.version && releaseBranch.name == artifact.parentObj.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
@@ -552,7 +576,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         if(isMainlineBranch(artifact.parentObj)) {
             return c.RELEASE_TAG_LEVELS[0]
         } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
-            releaseBranches.forEach(function(releaseBranch, i) {
+            releaseBranches.concat(supportReleaseBranches).forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.parentObj.version && releaseBranch.name == artifact.parentObj.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
@@ -572,7 +596,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var getReleaseRevisionFromLevel = function(artifact, c) {
         var releaseBranchIndex = 0 
         if (isReleaseBranch(artifact.parentObj)) {
-            releaseBranches.forEach(function(releaseBranch, i) {
+            releaseBranches.concat(supportReleaseBranches).forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
@@ -583,7 +607,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var getReleaseRevisionToLevel = function(artifact, c) {
         var releaseBranchIndex = 0 
         if (isReleaseBranch(artifact.parentObj)) {
-            releaseBranches.forEach(function(releaseBranch, i) {
+            releaseBranches.concat(supportReleaseBranches).forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.version && releaseBranch.name == artifact.parentObj.name) {
                     releaseBranchIndex = i; return;
                 }
@@ -746,6 +770,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.mainlineBranch = mainlineBranch
     data.experimentalBranchesList = experimentalBranches
     data.releaseBranchesList = releaseBranches
+    data.supportReleaseBranchesList = supportReleaseBranches
     data.supportBranchesList = supportBranches
     data.mainlineTags = mainlineTags
     data.experimentalTags = experimentalTags
@@ -770,6 +795,7 @@ function generateVisualizationData(p) {
             mainlineTags:                   [],
             experimentalBranches:           [],
             releaseBranches:                [],
+            supportReleaseBranches:                [],
             supportBranches:                [],
             supportSnapshots:               [],
             supportRevisions:               [],
@@ -784,13 +810,15 @@ function generateVisualizationData(p) {
         }
     }
     var displayExperimentalBranches = (p.experimentalBranches.length > 0)
-    var displayReleaseBranches = (p.releaseBranches.length > 0)
+    var displayReleaseBranches = (p.releaseBranches.concat(p.supportReleaseBranches).length > 0)
     var displaySupportBranches = (p.supportBranches.length > 0)
     var numberOfExperimentalBranches = (p.experimentalBranches.length )
     var numberOfReleaseBranches = (p.releaseBranches.length )
+    var numberOfAllReleaseBranches = (p.releaseBranches.concat(p.supportReleaseBranches).length )
     var numberOfSupportBranches = (p.supportBranches.length )
     p.numberOfExperimentalBranches = numberOfExperimentalBranches
     p.numberOfReleaseBranches = numberOfReleaseBranches
+    p.numberOfAllReleaseBranches = numberOfAllReleaseBranches
     
     var c = getLevelsConfiguration(p)
     
@@ -809,6 +837,7 @@ function generateVisualizationData(p) {
     var mainlineTags = p.mainlineTags
     var experimentalBranches = p.experimentalBranches
     var releaseBranches = p.releaseBranches
+    var supportReleaseBranches = p.supportReleaseBranches
     var supportBranches = p.supportBranches
     var experimentalTags = p.experimentalTags
     var supportTags = p.supportTags
@@ -827,7 +856,7 @@ function generateVisualizationData(p) {
         {'name': 'TEST', 'level': c.MAINLINE_TEST_LEVEL, color: '#bae4b3', class: 'mainlineMaturityLevel'},
         {'name': 'USER', 'level': c.MAINLINE_USER_LEVEL, color: '#74c476', class: 'mainlineMaturityLevel'},
     ]
-    if(displayReleaseBranches && numberOfReleaseBranches > 0) {        
+    if(displayReleaseBranches && numberOfAllReleaseBranches > 0) {        
         maturityLevelsList = maturityLevelsList.concat([
             {'name': 'TEST', 'level': c.RELEASE_BRANCH_TEST_LEVELS[dec(1)], color: '#bae4b3', class: 'releaseMaturityLevel'},
             {'name': 'USER', 'level': c.RELEASE_BRANCH_USER_LEVELS[dec(1)], color: '#74c476', class: 'releaseMaturityLevel'}, 
@@ -1074,7 +1103,17 @@ function generateVisualizationData(p) {
             }
         }))
         
-        branchArrowNodes = branchArrowNodes.concat([].concat.apply([],releaseBranches.map(function(branch, i) {
+        branchArrows = branchArrows.concat(supportReleaseBranches.map(function(branch, i) {
+            return {
+                s:firstCol(i, branchArrowNodes.length), 
+                t:secondCol(i, branchArrowNodes.length), 
+                version: branch.version, 
+                branchName: branch.name, 
+                class: 'supportReleaseBranch'
+            }
+        }))
+        
+        branchArrowNodes = branchArrowNodes.concat([].concat.apply([],releaseBranches.concat(supportReleaseBranches).map(function(branch, i) {
             return [
                 {
                     x:xLeftMargin + tagsDistance*branch.sequence, 
@@ -1086,16 +1125,24 @@ function generateVisualizationData(p) {
                 },
             ]
         })))
-        
+       
         branchConnectors = branchConnectors.concat(releaseBranches.map(function(branch, i) {
             return {
                 s:firstCol(i, branchConnectorNodes.length),
                 t:secondCol(i, branchConnectorNodes.length), 
                 class: 'releaseBranch'
             }
+        })) 
+
+        branchConnectors = branchConnectors.concat(supportReleaseBranches.map(function(branch, i) {
+            return {
+                s:firstCol(i, branchConnectorNodes.length),
+                t:secondCol(i, branchConnectorNodes.length), 
+                class: 'supportReleaseBranch'
+            }
         }))
         
-        branchConnectorNodes = branchConnectorNodes.concat([].concat.apply([],releaseBranches.map(function(branch, i) {
+        branchConnectorNodes = branchConnectorNodes.concat([].concat.apply([],releaseBranches.concat(supportReleaseBranches).map(function(branch, i) {
             return [
                 {
                     x:xLeftMargin + tagsDistance*branch.sequence, 
@@ -1130,6 +1177,7 @@ function getLevelsConfiguration(paramsObj) {
             numberOfExperimentalBranches:   0,
             displayReleaseBranches:         false,
             numberOfReleaseBranches:        0,
+            numberOfAllReleaseBranches:     0,
             displaySupportBranches:         false,
             numberOfSupportBranches:        0,
         }
@@ -1162,6 +1210,7 @@ function getLevelsConfiguration(paramsObj) {
     var levelsCounter = 0;
     var numberOfExperimentalBranches = paramsObj.numberOfExperimentalBranches;
     var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
+    var numberOfAllReleaseBranches = paramsObj.numberOfAllReleaseBranches;
     var displayExperimentalBranches = paramsObj.displayExperimentalBranches;
     var displayReleaseBranches = paramsObj.displayReleaseBranches;
     var displaySupportBranches = paramsObj.displaySupportBranches;
@@ -1269,7 +1318,7 @@ function getLevelsConfiguration(paramsObj) {
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
         if(displayReleaseBranches) {
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 levelsCounter++;
                 resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_LEVELS.push(levelsCounter)
@@ -1323,21 +1372,21 @@ function getLevelsConfiguration(paramsObj) {
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
-        var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
+        var numberOfAllReleaseBranches = paramsObj.numberOfAllReleaseBranches;
         if(displayReleaseBranches) {
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
         }
         ++levelsCounter
         if(displayReleaseBranches) {
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
             }
             ++levelsCounter
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
                 resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
@@ -1392,34 +1441,34 @@ function getLevelsConfiguration(paramsObj) {
         resultObj.MAINLINE_DEV_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = ++levelsCounter;
-        var numberOfReleaseBranches = paramsObj.numberOfReleaseBranches;
+        var numberOfAllReleaseBranches = paramsObj.numberOfAllReleaseBranches;
         if(displayReleaseBranches) {
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_LEVELS.push(++levelsCounter)
             }
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
             ++levelsCounter
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_REVISION_LEVELS.push(levelsCounter)
             }
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
             ++levelsCounter
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_TEST_LEVELS.push(levelsCounter)
             }
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
             ++levelsCounter
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_USER_LEVELS.push(levelsCounter)
             }
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
             ++levelsCounter
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_RC_LEVELS.push(levelsCounter)
             }
-            paramsObj.numberOfReleaseBranches = numberOfReleaseBranches ;
+            paramsObj.numberOfAllReleaseBranches = numberOfAllReleaseBranches ;
             ++levelsCounter
-            while (paramsObj.numberOfReleaseBranches-- > 0) {
+            while (paramsObj.numberOfAllReleaseBranches-- > 0) {
                 resultObj.RELEASE_BRANCH_PROD_LEVELS.push(levelsCounter)
             }
         }
@@ -1517,6 +1566,7 @@ function streamlineGraph() {
         var mainlineBranch = d.mainlineBranch
         var experimentalBranchesList = d.experimentalBranchesList
         var releaseBranchesList = d.releaseBranchesList
+        var supportReleaseBranchesList = d.supportReleaseBranchesList
         var supportBranchesList = d.supportBranchesList
         var mainlineTags = d.mainlineTags
         var experimentalTags = d.experimentalTags
@@ -1532,6 +1582,8 @@ function streamlineGraph() {
             'maturityLevels':                 maturityLevels,
             'numberOfExperimentalBranches':   experimentalBranchesList.length ,
             'numberOfReleaseBranches':        releaseBranchesList.length,
+            'numberOfAllReleaseBranches':     releaseBranchesList.concat(supportReleaseBranchesList).length,
+            'numberOfSupportReleaseBranches': supportReleaseBranchesList.length,
             'numberOfSupportBranches':        supportBranchesList.length,
             'zeroTag' : zeroTag,
             'zeroTagVersion' : zeroTagVersion,
@@ -1548,6 +1600,7 @@ function streamlineGraph() {
             'displaySupportBranches':         displaySupportBranches,
             'experimentalBranches':           experimentalBranchesList,
             'releaseBranches':                releaseBranchesList,
+            'supportReleaseBranches':         supportReleaseBranchesList,
             'supportBranches':                supportBranchesList,
             'mainlineTags' :                  mainlineTags,
             'experimentalTags' :              experimentalTags,
@@ -1587,6 +1640,8 @@ function streamlineGraph() {
 //            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
 //            svg.selectAll('.releaseTag').style('visibility', 'hidden')
             $('.releaseBranch').hide()
+            $('.supportReleaseBranch').hide()
+            $('.supportReleaseRevision').hide()
             $('.releaseTag').hide()
             $('.releaseRevision').hide()
         } else {
@@ -1595,6 +1650,10 @@ function streamlineGraph() {
             $('.releaseBranch').delay(1000).show(0)
             $('.releaseTag').delay(1000).show(0)
             $('.releaseRevision').delay(1000).show(0)
+            if(displaySupportBranches) {
+                $('.supportReleaseBranch').delay(1000).show(0)
+                $('.supportReleaseRevision').delay(1000).show(0)
+            }
         }
         if(!displaySupportBranches) {
 //            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
@@ -1609,11 +1668,13 @@ function streamlineGraph() {
 //            svg.selectAll('.releaseBranch').style('visibility', 'visible')
 //            svg.selectAll('.releaseTag').style('visibility', 'visible')
             $('.supportBranch').delay(1000).show(0)
-            $('.supportReleaseBranch').delay(1000).show(0)
             $('.supportTag').delay(1000).show(0)
             $('.supportRevision').delay(1000).show(0)
-            $('.supportReleaseRevision').delay(1000).show(0)
             $('.supportSnapshot').delay(1000).show(0)
+            if(displayReleaseBranches) {
+                $('.supportReleaseBranch').delay(1000).show(0)
+                $('.supportReleaseRevision').delay(1000).show(0)
+            }
         }
         if(!maturityLevels) {
             svg.selectAll('.maturityLevelLabel')
