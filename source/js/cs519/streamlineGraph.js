@@ -111,7 +111,8 @@ var combineParsedTrees = function(tree1, tree2) {
         releaseRevisions : tree1.releaseRevisions.concat(tree2.releaseRevisions),
         supportBranches : tree1.supportBranches.concat(tree2.supportBranches),
         supportSnapshots : tree1.supportSnapshots.concat(tree2.supportSnapshots),
-        supportRevisions : tree1.supportRevisions.concat(tree2.supportRevisions)
+        supportRevisions : tree1.supportRevisions.concat(tree2.supportRevisions),
+        supportReleaseRevisions : tree1.supportReleaseRevisions.concat(tree2.supportReleaseRevisions)
     }
     return resultObj
 }
@@ -128,7 +129,8 @@ var defaultParsedTree = {
     releaseRevisions : [],
     supportBranches : [] ,
     supportSnapshots : [],
-    supportRevisions : []
+    supportRevisions : [],
+    supportReleaseRevisions : []
 }
 
 function parseArtifactTree ( artifactTree, parentObj ) {
@@ -152,7 +154,11 @@ function parseArtifactTree ( artifactTree, parentObj ) {
         } else if (isReleaseBranch(parentObj)) {
             parsedArtifactTree.releaseRevisions = addTag(parsedArtifactTree.releaseRevisions, artifactTreeObj)
         } else if(isSupportBranch(parentObj)) {
-            parsedArtifactTree.supportRevisions = addTag(parsedArtifactTree.supportRevisions, artifactTreeObj)
+            if (artifactTreeArr[0]['value'] != undefined && isReleaseBranch(artifactTreeArr[0]['value'])) {
+                parsedArtifactTree.supportReleaseRevisions = addTag(parsedArtifactTree.supportReleaseRevisions, artifactTreeObj)
+            } else {
+                parsedArtifactTree.supportRevisions = addTag(parsedArtifactTree.supportRevisions, artifactTreeObj)
+            }
         } else if ( !isMainlineBranch(parentObj) && !isZeroTag(parentObj) ) {
             parsedArtifactTree.experimentalTags = addTag(parsedArtifactTree.experimentalTags, artifactTreeObj)
         } else if (artifactTreeArr[0]['value'] != undefined && isReleaseBranch(artifactTreeArr[0]['value'])) {
@@ -204,7 +210,8 @@ function parseArtifactTreeArr ( arr, parentObj ) {
             releaseRevisions : [],
             supportBranches : [] ,
             supportSnapshots: [],
-            supportRevisions: []
+            supportRevisions: [],
+            supportReleaseRevisions: []
         }
     }
 }
@@ -241,6 +248,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         .concat(parsedArtifactTree.releaseRevisions)
         .concat(parsedArtifactTree.supportSnapshots)
         .concat(parsedArtifactTree.supportRevisions)
+        .concat(parsedArtifactTree.supportReleaseRevisions)
         .sort( sortByTimestamp )
         .filter(function(tag) { return !isReleaseTag(tag) && !isSupportSnapshot(tag)})
         .map( function( tag, i ) { tag.sequence = i + 1; return tag } )
@@ -316,35 +324,6 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log(supportBranches)
     }
 
-    var supportSnapshots = parsedArtifactTree.supportSnapshots
-        .sort( sortByTimestamp )
-        .map(function(a, i ) {
-                return {
-                    version: extractVersionNumber(a.version), 
-                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
-                    name: a.name
-                } 
-            })
-    if(window.debug) {
-        console.log('supportSnapshots:')
-        console.log(supportSnapshots)
-    }
-
-    var supportRevisions = parsedArtifactTree.supportRevisions
-        .sort( sortByTimestamp )
-        .map(function(a, i ) {
-                return {
-                    version: extractVersionNumber(a.version), 
-                    sequence: findSequenceByVersion(a.parentObj.version, allTags), 
-
-                    name: a.name
-                } 
-            })
-    if(window.debug) {
-        console.log('supportRevisions:')
-        console.log(supportRevisions)
-    }
-
     // zeroTagVersion = "0.x.x"
 
     // mainlineBranch = {version: "x.x", name: "trunk"}
@@ -398,6 +377,29 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         // {version: "1.3", sequence: 12, from: c.RELEASE_BRANCH_LEVELS[dec(1)], to: c.RELEASE_BRANCH_PROD_LEVELS[dec(1)]},
         // {version: "2.1", sequence: 13, from: c.RELEASE_BRANCH_LEVELS[dec(2)], to: c.RELEASE_BRANCH_RC_LEVELS[dec(2)]},
     // ]
+    var getSupportReleaseRevisionFromLevel = function(artifact, c) {
+        var supportBranchIndex = 0 
+        if (isSupportBranch(artifact.parentObj)) {
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
+                }
+            })
+            return c.SUPPORT_BRANCH_LEVELS[supportBranchIndex]
+        }
+    }
+    var getSupportReleaseRevisionToLevel = function(artifact, c) {
+        var supportBranchIndex = 0 
+        if (isSupportBranch(artifact.parentObj)) {
+            supportBranches.forEach(function(supportBranch, i) {
+                if(supportBranch.version == artifact.parentObj.version && supportBranch.name == artifact.parentObj.name) {
+                    supportBranchIndex = i; return;
+                }
+            })
+        }
+        return c.RELEASE_TAG_LEVELS[supportBranchIndex]
+    }
+
     var getSupportRevisionFromLevel = function(artifact, c) {
         var supportBranchIndex = 0 
         if (isSupportBranch(artifact.parentObj)) {
@@ -548,7 +550,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         var maturityLevel = ""
         var toLevel = 0
         if(isMainlineBranch(artifact.parentObj)) {
-            return c.RELEASE_TAG_LEVEL
+            return c.RELEASE_TAG_LEVELS[0]
         } else if (isMainlineOrExperimentalTagOrReleaseRevision(artifact.parentObj)) {
             releaseBranches.forEach(function(releaseBranch, i) {
                 if(releaseBranch.version == artifact.parentObj.parentObj.version && releaseBranch.name == artifact.parentObj.parentObj.name) {
@@ -684,6 +686,22 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
         console.log('supportRevisions:')
         console.log(supportRevisions)
     }
+
+    var supportReleaseRevisions = parsedArtifactTree.supportReleaseRevisions
+        .sort( sortByTimestamp )
+        .map ( function(a) { 
+            return {
+                version: extractVersionNumber(a.version), 
+                sequence: findSequenceByVersion(a.version, allTags), 
+                from: getSupportReleaseRevisionFromLevel(a, c), 
+                to: getSupportReleaseRevisionToLevel(a, c),
+                maturityLevel: extractMaturityLevel(a.version)
+            } 
+        })
+    if(window.debug) {
+        console.log('supportReleaseRevisions:')
+        console.log(supportReleaseRevisions)
+    }
     
     var releaseTags = parsedArtifactTree.releaseTags
         .sort( sortByTimestamp )
@@ -734,6 +752,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     data.supportTags = supportTags
     data.supportSnapshots = supportSnapshots
     data.supportRevisions = supportRevisions
+    data.supportReleaseRevisions = supportReleaseRevisions
     data.releaseTags = releaseTags
     data.releaseRevisions = releaseRevisions
     
@@ -754,6 +773,7 @@ function generateVisualizationData(p) {
             supportBranches:                [],
             supportSnapshots:               [],
             supportRevisions:               [],
+            supportReleaseRevisions:        [],
             xRightMargin:                   0,
             xLeftMargin:                    0,
             tagTextMargin:                  0,
@@ -794,6 +814,7 @@ function generateVisualizationData(p) {
     var supportTags = p.supportTags
     var supportSnapshots = p.supportSnapshots
     var supportRevisions = p.supportRevisions
+    var supportReleaseRevisions = p.supportReleaseRevisions
     var releaseTags = p.releaseTags
     var releaseRevisions = p.releaseRevisions
 
@@ -842,6 +863,17 @@ function generateVisualizationData(p) {
         }))
         
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], supportRevisions.map(tagConnectorNodesMapping)))
+        
+        tagConnectors = tagConnectors.concat(supportReleaseRevisions.map(function(tag, i) {
+            return {
+                s:firstCol(i, tagConnectorNodes.length), 
+                t:secondCol(i, tagConnectorNodes.length), 
+                version: tag.version,    
+                class: 'supportReleaseRevision'
+            }
+        }))
+        
+        tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], supportReleaseRevisions.map(tagConnectorNodesMapping)))
         
         tagConnectors = tagConnectors.concat(supportSnapshots.map(function(tag, i) {
             return {
@@ -1067,7 +1099,7 @@ function generateVisualizationData(p) {
             return [
                 {
                     x:xLeftMargin + tagsDistance*branch.sequence, 
-                    y:levelHeight*c.RELEASE_TAG_LEVEL + yTopMargin + tagTextMargin
+                    y:levelHeight*c.RELEASE_TAG_LEVELS[i] + yTopMargin + tagTextMargin
                 }, 
                 {
                     x:xLeftMargin + tagsDistance*branch.sequence, 
@@ -1118,7 +1150,7 @@ function getLevelsConfiguration(paramsObj) {
         EXPERIMENTAL_BRANCH_DEV_LEVELS: [],
         EXPERIMENTAL_BRANCH_TEST_LEVELS:[],
         EXPERIMENTAL_BRANCH_USER_LEVELS:[],
-        RELEASE_TAG_LEVEL:              0,
+        RELEASE_TAG_LEVELS:             [],
         RELEASE_REVISION_LEVELS:        [],
         RELEASE_BRANCH_LEVELS:          [],
         RELEASE_BRANCH_TEST_LEVELS:     [],
@@ -1218,6 +1250,7 @@ function getLevelsConfiguration(paramsObj) {
                 resultObj.SUPPORT_BRANCH_TEST_LEVELS.push(levelsCounter)
                 resultObj.SUPPORT_BRANCH_USER_LEVELS.push(levelsCounter)
                 resultObj.SUPPORT_TAG_LEVELS.push(levelsCounter)
+                resultObj.RELEASE_TAG_LEVELS.push(levelsCounter)
             }
         }
         resultObj.ZERO_TAG_LEVEL = ++levelsCounter;
@@ -1230,8 +1263,8 @@ function getLevelsConfiguration(paramsObj) {
             //}
         //}
         resultObj.MAINLINE_LEVEL = levelsCounter;
-        if(displayReleaseBranches)
-            resultObj.RELEASE_TAG_LEVEL = levelsCounter;
+        //if(displayReleaseBranches)
+            //resultObj.RELEASE_TAG_LEVELS.push(levelsCounter)
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = levelsCounter;
@@ -1278,10 +1311,14 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
+        paramsObj.numberOfSupportBranches = numberOfSupportBranches 
         if(displayReleaseBranches) {
-            resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
+            levelsCounter++;
+            while (paramsObj.numberOfSupportBranches-- > 0) {
+                resultObj.RELEASE_TAG_LEVELS.push(levelsCounter)
+            } 
         } else {
-            ++levelsCounter;
+            ++levelsCounter
         }
         resultObj.MAINLINE_DEV_LEVEL = levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = levelsCounter;
@@ -1345,8 +1382,13 @@ function getLevelsConfiguration(paramsObj) {
             }
         }
         resultObj.MAINLINE_LEVEL = ++levelsCounter;
-        if(displayReleaseBranches)
-            resultObj.RELEASE_TAG_LEVEL = ++levelsCounter;
+        paramsObj.numberOfSupportBranches = numberOfSupportBranches 
+        if(displayReleaseBranches) {
+            levelsCounter++;
+            while (paramsObj.numberOfSupportBranches-- > 0) {
+                resultObj.RELEASE_TAG_LEVELS.push(levelsCounter)
+            } 
+        }
         resultObj.MAINLINE_DEV_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_TEST_LEVEL = ++levelsCounter;
         resultObj.MAINLINE_USER_LEVEL = ++levelsCounter;
@@ -1481,6 +1523,7 @@ function streamlineGraph() {
         var supportTags = d.supportTags
         var supportSnapshots = d.supportSnapshots
         var supportRevisions = d.supportRevisions
+        var supportReleaseRevisions = d.supportReleaseRevisions
         var releaseTags = d.releaseTags
         var releaseRevisions = d.releaseRevisions
         
@@ -1511,6 +1554,7 @@ function streamlineGraph() {
             'supportTags' :                   supportTags,
             'supportSnapshots' :              supportSnapshots,
             'supportRevisions' :              supportRevisions,
+            'supportReleaseRevisions' :       supportReleaseRevisions,
             'releaseTags' :                   releaseTags,
             'releaseRevisions' :              releaseRevisions,
         }
@@ -1556,15 +1600,19 @@ function streamlineGraph() {
 //            svg.selectAll('.releaseBranch').style('visibility', 'hidden')
 //            svg.selectAll('.releaseTag').style('visibility', 'hidden')
             $('.supportBranch').hide()
+            $('.supportReleaseBranch').hide()
             $('.supportTag').hide()
             $('.supportRevision').hide()
+            $('.supportReleaseRevision').hide()
             $('.supportSnapshot').hide()
         } else {
 //            svg.selectAll('.releaseBranch').style('visibility', 'visible')
 //            svg.selectAll('.releaseTag').style('visibility', 'visible')
             $('.supportBranch').delay(1000).show(0)
+            $('.supportReleaseBranch').delay(1000).show(0)
             $('.supportTag').delay(1000).show(0)
             $('.supportRevision').delay(1000).show(0)
+            $('.supportReleaseRevision').delay(1000).show(0)
             $('.supportSnapshot').delay(1000).show(0)
         }
         if(!maturityLevels) {
