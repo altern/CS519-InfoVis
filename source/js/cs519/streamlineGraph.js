@@ -98,6 +98,11 @@ var isSupportSnapshot = function(obj) {
         || /^.*\/\d+\.x\.\d+$/i.test(obj.version)
 }
 
+var isSupportReleaseBranch = function(obj) {
+    return /^\d+\.\d+\.x$/i.test(obj.version)
+        //|| /^.*\/\d+\.x\.\d+$/i.test(obj.version)
+}
+
 var combineParsedTrees = function(tree1, tree2) {
     var resultObj = {
         zeroTagVersion : !$.isEmptyObject(tree1.zeroTagVersion) ? tree1.zeroTagVersion : tree2.zeroTagVersion,
@@ -730,7 +735,7 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var releaseTags = parsedArtifactTree.releaseTags
         .sort( sortByTimestamp )
         .map ( function(a) { 
-            return {
+            var resultReleaseTag = {
                 version: extractVersionNumber(a.version), 
                 sequence: function() {
                     if(isMainlineOrExperimentalTagOrReleaseRevision(a)) {
@@ -743,6 +748,10 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
                 to: getReleaseTagToLevel(a, c),
                 maturityLevel: extractMaturityLevel(a.version)
             } 
+            if(a.parentObj.parentObj != undefined && isSupportReleaseBranch(a.parentObj.parentObj)) {
+                resultReleaseTag['class'] = 'supportReleaseTag'
+            }
+            return resultReleaseTag
         })
     if(window.debug) {
         console.log('releaseTags:')
@@ -752,13 +761,17 @@ function generateDataFromArtifactTree ( artifactTree, p ) {
     var releaseRevisions = parsedArtifactTree.releaseRevisions
         .sort( sortByTimestamp )
         .map ( function(a) { 
-            return {
+            var resultReleaseRevision = {
                 version: extractVersionNumber(a.version), 
                 sequence: findSequenceByVersion(a.version, allTags), 
                 from: getReleaseRevisionFromLevel(a, c), 
                 to: getReleaseRevisionToLevel(a, c),
                 maturityLevel: extractMaturityLevel(a.version)
-            } 
+            }
+            if(isSupportReleaseBranch(a.parentObj) ) {
+                resultReleaseRevision['class'] = 'supportReleaseRevision'
+            }
+            return resultReleaseRevision
         })
     if(window.debug) {
         console.log('releaseRevisions:')
@@ -1074,22 +1087,26 @@ function generateVisualizationData(p) {
     
     if(displayReleaseBranches) {        
         tagConnectors = tagConnectors.concat(releaseRevisions.map(function(tag, i) {
-            return {
+            var resultReleaseRevision = {
                 s:firstCol(i, tagConnectorNodes.length), 
                 t:secondCol(i, tagConnectorNodes.length), 
-                version: tag.version,
-                class: 'releaseRevision'
+                version: tag.version
             }
+            resultReleaseRevision.class = (tag.class != undefined ? tag.class : 'releaseRevision')
+            
+            return resultReleaseRevision
         }))
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseRevisions.map(tagConnectorNodesMapping)))
         
         tagConnectors = tagConnectors.concat(releaseTags.map(function(tag, i) {
-            return {
+            var resultReleaseTag = {
                 s:firstCol(i, tagConnectorNodes.length), 
                 t:secondCol(i, tagConnectorNodes.length), 
-                version: tag.version,
-                class: 'releaseTag'
+                version: tag.version
             }
+            resultReleaseTag.class = (tag.class != undefined ? tag.class : 'releaseTag')
+
+            return resultReleaseTag
         }))
         tagConnectorNodes = tagConnectorNodes.concat([].concat.apply([], releaseTags.map(tagConnectorNodesMapping)))
         
@@ -1642,6 +1659,7 @@ function streamlineGraph() {
             $('.releaseBranch').hide()
             $('.supportReleaseBranch').hide()
             $('.supportReleaseRevision').hide()
+            $('.supportReleaseTag').hide()
             $('.releaseTag').hide()
             $('.releaseRevision').hide()
         } else {
@@ -1653,6 +1671,7 @@ function streamlineGraph() {
             if(displaySupportBranches) {
                 $('.supportReleaseBranch').delay(1000).show(0)
                 $('.supportReleaseRevision').delay(1000).show(0)
+                $('.supportReleaseTag').delay(1000).show(0)
             }
         }
         if(!displaySupportBranches) {
@@ -1663,6 +1682,7 @@ function streamlineGraph() {
             $('.supportTag').hide()
             $('.supportRevision').hide()
             $('.supportReleaseRevision').hide()
+            $('.supportReleaseTag').hide()
             $('.supportSnapshot').hide()
         } else {
 //            svg.selectAll('.releaseBranch').style('visibility', 'visible')
@@ -1674,6 +1694,7 @@ function streamlineGraph() {
             if(displayReleaseBranches) {
                 $('.supportReleaseBranch').delay(1000).show(0)
                 $('.supportReleaseRevision').delay(1000).show(0)
+                $('.supportReleaseTag').delay(1000).show(0)
             }
         }
         if(!maturityLevels) {
